@@ -1,16 +1,11 @@
 import styles from './Home.module.css'
 
-// 畫面一：開場首頁（第 1 屏）
-export default function Home() {
-  // 點 Start：平滑捲到下一屏的進度頁
-  // 有開「減少動態效果」的使用者直接跳過去，不播滑動動畫
-  const goToMenu = () => {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    document.getElementById('menu')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' })
-  }
-
+// 畫面一：開場首頁（第 1 頁）
+// active：現在是不是在這一頁；onStart：點 Start 時要做的事（翻到下一頁）
+export default function Home({ active, onStart }) {
   return (
-    <section className={styles.home}>
+    // inert：不在畫面上時，鍵盤 Tab 和螢幕報讀器都跳過這一頁
+    <section className={styles.home} inert={!active}>
       <div className={styles.titleBlock}>
         {/* 主標題分三行；aria-label 讓螢幕報讀器唸成一整句 */}
         <h1 className={styles.title} aria-label="冰上沒有牛。">
@@ -25,7 +20,8 @@ export default function Home() {
         </p>
       </div>
 
-      <button type="button" className={styles.start} onClick={goToMenu}>
+      {/* magic-pulse-box：全站共用的「點我」呼吸光暈（定義在 global.css） */}
+      <button type="button" className={`${styles.start} magic-pulse-box`} onClick={onStart}>
         Start
       </button>
     </section>

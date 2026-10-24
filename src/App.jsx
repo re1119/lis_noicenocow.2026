@@ -1,52 +1,90 @@
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Scenery from './components/Scenery.jsx'
 import Home from './pages/Home.jsx'
 import Menu from './pages/Menu.jsx'
-import { getScenePercent } from './data/scenes.js'
+import { PAGE_COUNT, SECTION_POSITIONS } from './data/scenes.js'
 import styles from './App.module.css'
 
+// 翻頁後要鎖多久（毫秒），比 1 秒的轉場動畫稍長，避免連續狂滑翻過頭
+const COOLDOWN_MS = 1200
+// 手指至少要滑多遠（px）才算翻頁，太短的當成一般點擊
+const SWIPE_MIN = 50
+// 滾輪一次至少要轉多少才算翻頁，過濾觸控板的輕微抖動
+const WHEEL_MIN = 10
+
 export default function App() {
-  const appRef = useRef(null)
-  const scrollerRef = useRef(null)
+  // activeIndex：現在在第幾頁（0 = 首頁、1 = 進度頁）
+  const [activeIndex, setActiveIndex] = useState(0)
+  // indexRef：同一個頁數的「備份」，讓事件處理器隨時讀到最新值
+  const indexRef = useRef(0)
+  const lockedUntil = useRef(0)
+  const touchStartY = useRef(null)
 
-  // 監聽捲動：算出現在捲到第幾屏，換算成背景位置，寫進 CSS 變數
-  // 直接改 CSS 變數、不經過 React 重新繪製，手指滑動時才會順
-  useEffect(() => {
-    const app = appRef.current
-    const scroller = scrollerRef.current
-    let frame = 0
-
-    const update = () => {
-      frame = 0
-      const section = scroller.scrollTop / scroller.clientHeight
-      app.style.setProperty('--p', getScenePercent(section) / 100)
-      // 0 = 停在首頁、1 = 停在進度頁，用來控制頂部壓暗的深淺
-      app.style.setProperty('--menu-progress', Math.min(Math.max(section, 0), 1))
-    }
-    // requestAnimationFrame：每一格畫面最多算一次，不會拖慢捲動
-    const schedule = () => {
-      if (!frame) frame = requestAnimationFrame(update)
-    }
-
-    update()
-    scroller.addEventListener('scroll', schedule, { passive: true })
-    window.addEventListener('resize', schedule)
-    return () => {
-      scroller.removeEventListener('scroll', schedule)
-      window.removeEventListener('resize', schedule)
-      cancelAnimationFrame(frame)
-    }
+  // 翻到指定的頁；冷卻時間內、超出範圍或已經在那一頁就不動
+  const goTo = useCallback((index) => {
+    const now = Date.now()
+    const next = Math.min(Math.max(index, 0), PAGE_COUNT - 1)
+    if (now < lockedUntil.current || next === indexRef.current) return
+    lockedUntil.current = now + COOLDOWN_MS
+    indexRef.current = next
+    setActiveIndex(next)
   }, [])
 
+  // 往上（-1）或往下（+1）翻一頁
+  const step = useCallback((direction) => goTo(indexRef.current + direction), [goTo])
+
+  // ---------- 觸控：記下手指按下的位置，放開時比較方向 ----------
+  const onTouchStart = (e) => {
+    touchStartY.current = e.touches[0].clientY
+  }
+  const onTouchEnd = (e) => {
+    if (touchStartY.current === null) return
+    const delta = touchStartY.current - e.changedTouches[0].clientY
+    touchStartY.current = null
+    if (Math.abs(delta) < SWIPE_MIN) return // 滑太短：當作點擊，不翻頁
+    step(delta > 0 ? 1 : -1) // 手指往上滑 → 看下一頁
+  }
+
+  // ---------- 滑鼠滾輪／觸控板 ----------
+  const onWheel = (e) => {
+    if (Math.abs(e.deltaY) < WHEEL_MIN) return
+    step(e.deltaY > 0 ? 1 : -1)
+  }
+
+  // ---------- 鍵盤：上下方向鍵、PageUp / PageDown ----------
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'ArrowDown' || e.key === 'PageDown') step(1)
+      if (e.key === 'ArrowUp' || e.key === 'PageUp') step(-1)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [step])
+
   return (
-    <div ref={appRef} className={styles.app}>
-      {/* 背景：長圖、燭火、霧，位置跟著捲動 */}
+    <div
+      className={styles.app}
+      style={{
+        '--index': activeIndex,
+        // 背景要停在幾 %（0.2 = 20%），由 Scenery 的 CSS 讀取
+        '--p': SECTION_POSITIONS[activeIndex] / 100,
+        '--menu-progress': activeIndex >= 1 ? 1 : 0,
+      }}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      onWheel={onWheel}
+      // 保險：不支援 overflow: clip 的舊瀏覽器，萬一被捲動就立刻拉回原位
+      onScroll={(e) => {
+        e.currentTarget.scrollTop = 0
+      }}
+    >
+      {/* 背景：長圖、燭火、霧，跟著翻頁一起滑 */}
       <Scenery />
 
-      {/* 前景：首頁和進度頁上下排在同一個捲動容器裡，各佔一屏 */}
-      <main ref={scrollerRef} className={styles.scroller}>
-        <Home />
-        <Menu />
+      {/* 前景：所有頁面上下疊在一起，整串用 transform 往上推 */}
+      <main className={styles.slider}>
+        <Home active={activeIndex === 0} onStart={() => goTo(1)} />
+        <Menu active={activeIndex === 1} />
       </main>
     </div>
   )

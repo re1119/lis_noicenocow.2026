@@ -47,6 +47,13 @@
   /* 圓角 */
   --radius-pill: 999px;
 
+  /* 翻頁轉場：前景和背景用同一組速度，畫面才會一起滑 */
+  --slide-duration: 1s;
+  --slide-ease: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* 「點我」的魔法光暈：暖金色，呼應提燈的燭光 */
+  --color-glow: 255, 214, 140;
+
   /* 白字的陰影：讓白字壓在亮色霧地上也讀得清楚 */
   --shadow-text: 0 1px 2px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.6);
   --shadow-text-strong: 0 1px 3px rgba(0, 0, 0, 0.35), 0 2px 14px rgba(0, 0, 0, 0.55);
@@ -91,8 +98,49 @@ button {
   outline-offset: 3px;
 }
 
+/* ============================================
+   魔法光暈 magic-pulse：所有「希望玩家點」的東西共用
+   輕輕上下浮動 4px ＋ 背後的暖金色光暈像呼吸一樣放大縮小
+   浮動用 translate 屬性，不佔用 transform，按下去的 scale 回饋才不會打架
+   ============================================ */
+
+/* 給形狀不規則的東西（去背圖片）：光暈貼著輪廓 */
+.magic-pulse {
+  animation: magic-pulse 2.6s ease-in-out infinite;
+}
+
+@keyframes magic-pulse {
+  0%, 100% {
+    translate: 0 0;
+    filter: drop-shadow(0 0 4px rgba(var(--color-glow), 0.25));
+  }
+  50% {
+    translate: 0 -4px;
+    filter: drop-shadow(0 0 14px rgba(var(--color-glow), 0.85));
+  }
+}
+
+/* 給圓角按鈕：光暈是外圈的 box-shadow */
+.magic-pulse-box {
+  animation: magic-pulse-box 2.6s ease-in-out infinite;
+}
+
+@keyframes magic-pulse-box {
+  0%, 100% {
+    translate: 0 0;
+    box-shadow: 0 0 6px 0 rgba(var(--color-glow), 0.2);
+  }
+  50% {
+    translate: 0 -4px;
+    box-shadow: 0 0 22px 4px rgba(var(--color-glow), 0.55);
+  }
+}
+
 /* 有開「減少動態效果」的使用者：關掉大部分動畫 */
 @media (prefers-reduced-motion: reduce) {
+  :root {
+    --slide-duration: 0.01s;
+  }
   *,
   *::before,
   *::after {

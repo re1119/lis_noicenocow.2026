@@ -1,4 +1,5 @@
-/* 最外層容器：手機上滿版，桌機上置中成一支手機的寬度 */
+/* 最外層容器：手機上滿版，桌機上置中成一支手機的寬度
+   完全不捲動，翻頁全部交給 .slider 的 transform */
 .app {
   position: relative;
   width: 100%;
@@ -7,40 +8,28 @@
   height: 100dvh; /* dvh：扣掉手機瀏覽器網址列、底部工具列後的真實可見高度 */
   margin: 0 auto;
   overflow: hidden;
+  /* clip 比 hidden 更徹底：hidden 仍可能被瀏覽器「偷偷捲動」
+     （例如按鈕取得焦點時自動捲到看得見的位置），clip 完全不能捲 */
+  overflow: clip;
+  /* 關掉瀏覽器自己的手勢（下拉重新整理、橡皮筋彈跳），滑動交給程式判斷 */
+  touch-action: none;
   /* 讓裡面可以用 cqw / cqh（容器寬高的 1%）來排版、對齊背景圖 */
   container-type: size;
   box-shadow: 0 0 60px rgba(0, 0, 0, 0.45);
-  /* 捲動位置（由 App.jsx 即時更新），先給預設值 */
-  --p: 0;
-  --menu-progress: 0;
 }
 
-/* 捲動容器：疊在背景上，一屏一屏吸附停靠 */
-.scroller {
+/* 所有頁面上下疊成一長條；第 n 頁就往上推 n 個畫面高 */
+.slider {
   position: absolute;
   inset: 0;
   z-index: 10;
-  overflow-y: auto;
-  overscroll-behavior: contain; /* 滑到底不會帶動整個瀏覽器頁面彈跳 */
-  scroll-snap-type: y mandatory; /* 放手後一定停在某一屏的開頭 */
-  scroll-behavior: smooth;
-  scrollbar-width: none; /* 隱藏捲軸，像 App 一樣乾淨 */
+  transform: translateY(calc(var(--index) * -100%));
+  transition: transform var(--slide-duration) var(--slide-ease);
+  will-change: transform;
 }
 
-.scroller::-webkit-scrollbar {
-  display: none;
-}
-
-/* 每一屏：剛好一個畫面高，吸附在開頭 */
-.scroller > section {
+/* 每一頁：剛好一個畫面高 */
+.slider > section {
   height: 100%;
-  scroll-snap-align: start;
-  scroll-snap-stop: always; /* 快速一甩也不會直接跳過一屏 */
   overflow: hidden;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .scroller {
-    scroll-behavior: auto;
-  }
 }

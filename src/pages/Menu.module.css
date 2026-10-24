@@ -8,6 +8,26 @@
     calc(clamp(12px, 3cqh, 32px) + env(safe-area-inset-bottom));
 }
 
+/* ---------- 進場動畫：交錯浮現 ----------
+   還沒翻進來：透明、往下沉 20px
+   翻進來（.entered）：依各自的 --delay 依序浮上來
+   離開時延遲 1 秒才重置，等頁面滑出畫面後才偷偷藏起來，下次翻進來再播一次 */
+.header,
+.cell {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.7s ease-out 1s,
+    transform 0.7s ease-out 1s;
+}
+
+.entered .header,
+.entered .cell {
+  opacity: 1;
+  transform: none;
+  transition-delay: var(--delay);
+}
+
 /* ---------- 頂部標題 ---------- */
 .header {
   flex: none;
@@ -65,10 +85,12 @@
   border: 0;
   background: none;
   cursor: pointer;
+  transition: transform 0.12s ease;
 }
 
-.card:active .figure {
-  transform: scale(0.96);
+/* 點擊回饋：按下去的瞬間整張卡微縮 */
+.card:active {
+  transform: scale(0.95);
 }
 
 /* 圖片框：高度＝格子扣掉名字後剩下的空間（最多 200px），兩張圖疊在一起 */
@@ -79,7 +101,6 @@
   min-height: 0;
   width: 100%;
   max-height: 200px;
-  transition: transform 0.15s ease;
 }
 
 .figure img {
