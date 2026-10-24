@@ -1,0 +1,538 @@
+/* ============================================
+   第一關 Q1：引導頁、問題頁、通關頁
+   大小都用 cqh（畫面高的 1%）搭配 clamp(最小, 理想, 最大)，矮手機也放得下
+   ============================================ */
+
+.q1 {
+  position: relative;
+}
+
+/* 每個畫面疊在同一個位置，換畫面時淡出 */
+.screen {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.4s ease;
+}
+
+.fadeOut {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---------- 共用動畫 ---------- */
+
+/* 進場：由下往上浮起＋淡入（slide-up + fade-in）
+   --enter：從進度頁滑進來時要等翻頁；--delay：同一頁裡各區塊依序出現 */
+.rise {
+  animation: rise 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--enter, 0s) + var(--delay, 0s));
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 懸浮：上下緩慢飄動。用 translate 屬性，不會和 transform 的動畫打架 */
+.floating {
+  animation: floating 4s ease-in-out infinite;
+}
+
+@keyframes floating {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -10px;
+  }
+}
+
+/* 小動畫：從稍微縮小的狀態彈出來 */
+.pop {
+  animation: pop 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: var(--enter, 0s);
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    scale: 0.85;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+/* ============ 畫面三：引導頁 ============ */
+.intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  padding: calc(clamp(40px, 11cqh, 110px) + env(safe-area-inset-top)) var(--space-m)
+    calc(clamp(20px, 5cqh, 48px) + env(safe-area-inset-bottom));
+  border: 0;
+  background: none;
+  text-align: center;
+  cursor: pointer;
+}
+
+/* 神祕的開場白：白字外圍一圈微弱的暖光 */
+.introText {
+  margin: 0;
+  font-family: var(--font-title);
+  /* 「你有勇氣揭開安徒生的面紗嗎？」14 個字要能在 375px 寬放成一行 */
+  font-size: clamp(18px, 2.6cqh, 21px);
+  line-height: 1.9;
+  letter-spacing: 0.08em;
+  text-wrap: balance;
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.45),
+    0 0 14px rgba(255, 236, 200, 0.55),
+    0 0 32px rgba(var(--color-glow), 0.35);
+  animation: fadeIn 1.4s ease-out both;
+  animation-delay: calc(var(--enter, 0s) + 0.1s);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.introFairy {
+  display: block;
+  height: clamp(220px, 44cqh, 400px);
+  animation: pop 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--enter, 0s) + 0.5s);
+}
+
+.introFairy img {
+  height: 100%;
+  width: auto;
+  /* 仙子周圍一圈柔和的白光，從霧裡浮現的感覺 */
+  filter: drop-shadow(0 0 18px rgba(255, 255, 255, 0.55)) drop-shadow(0 12px 18px rgba(20, 30, 45, 0.25));
+  animation: floating 4s ease-in-out infinite;
+}
+
+/* 底部小提示：慢慢一明一暗 */
+.tapHint {
+  font-size: var(--text-small);
+  letter-spacing: 0.2em;
+  color: var(--color-ink);
+  opacity: 0;
+  animation: hintBlink 2.4s ease-in-out infinite;
+  animation-delay: calc(var(--enter, 0s) + 1.6s);
+}
+
+@keyframes hintBlink {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+/* ============ 畫面四：問題頁 ============ */
+.question {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: calc(clamp(40px, 8cqh, 80px) + env(safe-area-inset-top)) var(--space-m)
+    calc(clamp(16px, 4cqh, 40px) + env(safe-area-inset-bottom));
+}
+
+/* 左上角返回：小小的圓形毛玻璃按鈕 */
+.back {
+  position: absolute;
+  top: calc(14px + env(safe-area-inset-top));
+  left: 12px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  background: var(--glass-light-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  font-size: 22px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.12s ease;
+}
+
+.back:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.back:active {
+  transform: scale(0.92);
+}
+
+.qHeader {
+  flex: none;
+  text-align: center;
+}
+
+.qTitle {
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: clamp(24px, 3.6cqh, 30px);
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  margin-right: -0.25em;
+  text-shadow: var(--shadow-text-strong), 0 0 24px rgba(255, 255, 255, 0.25);
+}
+
+/* 線索標籤：毛玻璃膠囊 */
+.cluePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: clamp(8px, 1.6cqh, 14px) 0 0;
+  padding: 4px 16px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-pill);
+  background: var(--glass-light-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-shadow: var(--shadow-text);
+}
+
+.cluePill i {
+  font-size: 16px;
+}
+
+/* ---------- 三尊銅像：平均分佈 ---------- */
+.statues {
+  flex: none;
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  /* 上下 auto：在標題和提示卡片之間垂直置中 */
+  margin: auto 0;
+  padding: clamp(16px, 3cqh, 32px) 0;
+  list-style: none;
+}
+
+.statueCell {
+  flex: 1;
+  min-width: 0;
+}
+
+.statue {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(4px, 1cqh, 10px);
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.5s ease, filter 0.5s ease;
+}
+
+/* 滑鼠移上去（桌機）微微抬起 */
+@media (hover: hover) {
+  .statue:not(:disabled):hover {
+    transform: translateY(-4px);
+  }
+}
+
+.statue:not(:disabled):active {
+  transform: scale(0.95);
+}
+
+.statue:disabled {
+  cursor: default;
+}
+
+/* 銅像圖四周有透明留白，所以把圖放大到格子的 130%，左右各往外推 15% */
+.statueImg {
+  display: block;
+  width: 130%;
+  margin: 0 -15%;
+  aspect-ratio: 1;
+  max-height: 26cqh;
+  filter: drop-shadow(0 10px 14px rgba(20, 30, 45, 0.3));
+}
+
+.statueImg img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* 選項代號：小小的毛玻璃圓點 */
+.statueLabel {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  background: var(--glass-dark-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  font-size: 13px;
+  font-weight: 500;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* 答錯：左右震動 */
+.shake {
+  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes shake {
+  10%,
+  90% {
+    transform: translateX(-2px);
+  }
+  20%,
+  80% {
+    transform: translateX(4px);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-7px);
+  }
+  40%,
+  60% {
+    transform: translateX(7px);
+  }
+}
+
+.wrong .statueLabel {
+  border-color: rgba(255, 120, 120, 0.7);
+  background: rgba(190, 50, 60, 0.55);
+}
+
+/* 答對：放大一下，再亮起一圈綠光 */
+.correct .statueImg {
+  animation: correctPop 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  filter: drop-shadow(0 0 14px rgba(120, 255, 160, 0.55)) drop-shadow(0 10px 14px rgba(20, 30, 45, 0.3));
+}
+
+@keyframes correctPop {
+  0% {
+    scale: 1;
+  }
+  40% {
+    scale: 1.12;
+  }
+  100% {
+    scale: 1.05;
+  }
+}
+
+.correct .statueLabel {
+  border-color: rgba(150, 255, 180, 0.8);
+  background: rgba(40, 150, 80, 0.6);
+}
+
+/* 答對後，其他兩尊淡下去 */
+.dimmed {
+  opacity: 0.45;
+  filter: grayscale(0.6);
+}
+
+/* ---------- 底部提示卡片 ---------- */
+.hintArea {
+  position: relative;
+  flex: none;
+  /* 上方預留仙子探出頭的空間 */
+  padding-top: clamp(64px, 11cqh, 100px);
+}
+
+/* 阿瑪卡仙子：排在卡片後面，下半身被毛玻璃蓋住 */
+.peek {
+  position: absolute;
+  right: 4px;
+  top: 0;
+  height: clamp(110px, 18cqh, 160px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.peek img {
+  height: 100%;
+  width: auto;
+  filter: drop-shadow(0 4px 10px rgba(20, 30, 45, 0.25));
+}
+
+.hintCard {
+  position: relative;
+  z-index: 1;
+  padding: 20px 22px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  background: var(--glass-dark-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
+}
+
+.hintText {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.75;
+  letter-spacing: 0.06em;
+  color: var(--color-text);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* ============ 畫面五：通關回饋頁 ============ */
+.success {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  padding: calc(clamp(24px, 6cqh, 64px) + env(safe-area-inset-top)) var(--space-m)
+    calc(clamp(20px, 5cqh, 48px) + env(safe-area-inset-bottom));
+}
+
+/* 暖金色柔光：從仙子的位置往外暈開 */
+.warmGlow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 85% 55% at 50% 28%,
+    rgba(var(--color-glow), 0.38) 0%,
+    rgba(var(--color-glow), 0.14) 45%,
+    rgba(var(--color-glow), 0) 75%
+  );
+  animation: fadeIn 1.6s ease-out both;
+  animation-delay: var(--enter, 0s);
+}
+
+.successFairy {
+  position: relative;
+  flex: none;
+  height: clamp(160px, 28cqh, 250px);
+}
+
+.successFairy > span:first-child {
+  display: block;
+  height: 100%;
+}
+
+.successFairy img {
+  height: 100%;
+  width: auto;
+  filter: drop-shadow(0 0 20px rgba(var(--color-glow), 0.55));
+}
+
+/* 星光粒子：純 CSS 的四角星，忽大忽小地閃爍 */
+.sparkle {
+  position: absolute;
+  width: var(--size);
+  height: var(--size);
+  translate: -50% -50%;
+  background: radial-gradient(circle, #ffffff 0%, rgb(var(--color-glow)) 70%);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  filter: drop-shadow(0 0 4px rgba(var(--color-glow), 0.9));
+  opacity: 0;
+  animation: twinkle 2.4s ease-in-out infinite;
+  animation-delay: calc(var(--enter, 0s) + var(--d));
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0;
+    scale: 0.2;
+    rotate: 0deg;
+  }
+  50% {
+    opacity: 1;
+    scale: 1;
+    rotate: 45deg;
+  }
+}
+
+/* 回饋卡片：深色毛玻璃 */
+.resultCard {
+  position: relative;
+  width: 100%;
+  margin-top: clamp(14px, 3cqh, 28px);
+  padding: clamp(18px, 3cqh, 26px) 22px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  background: var(--glass-dark-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
+}
+
+.resultTitle {
+  margin: 0 0 clamp(6px, 1.2cqh, 12px);
+  font-family: var(--font-title);
+  font-size: clamp(24px, 3.6cqh, 30px);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-align: center;
+  color: #fff7e6;
+  text-shadow: 0 0 16px rgba(var(--color-glow), 0.7), 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.resultText {
+  margin: 0;
+  font-size: clamp(14px, 2cqh, 15px);
+  line-height: 1.9; /* 中文的 leading-relaxed：行距寬一點比較好讀 */
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* 回到尋寶圖鑑：白色微發光外框 */
+.homeButton {
+  position: relative;
+  margin-top: auto;
+  min-height: 52px;
+  padding: 0 36px;
+  border: 1.5px solid rgba(255, 255, 255, 0.9);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.12);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.45), inset 0 0 10px rgba(255, 255, 255, 0.15);
+  font-family: var(--font-title);
+  font-size: 17px;
+  letter-spacing: 0.2em;
+  text-shadow: var(--shadow-text);
+  cursor: pointer;
+  transition: background-color 0.25s ease, box-shadow 0.25s ease, scale 0.12s ease;
+}
+
+.homeButton:hover {
+  background: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 0 24px rgba(255, 255, 255, 0.6), inset 0 0 12px rgba(255, 255, 255, 0.2);
+}
+
+.homeButton:active {
+  scale: 0.96;
+}

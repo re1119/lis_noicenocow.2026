@@ -4,6 +4,9 @@ import { useCallback, useEffect, useState } from 'react'
 // 關掉分頁、重新整理都還在，直到使用者清除瀏覽資料
 const STORAGE_KEY = 'noicenocow:unlocked'
 
+// 每一關「答對了沒」各自一個紀錄，例如 isQ1Solved
+const solvedKey = (quiz) => `is${quiz}Solved`
+
 // 讀出已解鎖的精靈 id 清單；讀不到（無痕模式等）就當作全部未解鎖
 function readUnlocked() {
   try {
@@ -14,8 +17,12 @@ function readUnlocked() {
   }
 }
 
+// 這個 hook 放在 App 最上層只呼叫一次，再把結果傳給各頁，
+// 這樣通關頁寫入後，進度頁馬上就知道（大家看的是同一份資料）
 export function useUnlocked() {
   const [unlocked, setUnlocked] = useState(readUnlocked)
+  // 剛剛才解鎖、還沒播過登場動畫的精靈（只存在記憶體，重新整理就不再播）
+  const [justUnlocked, setJustUnlocked] = useState([])
 
   // 狀態一改變就寫回 LocalStorage
   useEffect(() => {
@@ -26,11 +33,36 @@ export function useUnlocked() {
     }
   }, [unlocked])
 
-  const unlock = useCallback((id) => {
-    setUnlocked((list) => (list.includes(id) ? list : [...list, id]))
-  }, [])
-
   const isUnlocked = useCallback((id) => unlocked.includes(id), [unlocked])
 
-  return { isUnlocked, unlock }
+  // 答對某一關：記下 isQ1Solved: true，並解鎖對應的精靈
+  const solve = useCallback((quiz, spriteId) => {
+    try {
+      localStorage.setItem(solvedKey(quiz), 'true')
+    } catch {
+      // 同上，存不進去就算了
+    }
+    setUnlocked((list) => {
+      if (list.includes(spriteId)) return list
+      // 第一次解鎖：排進「等待登場」名單
+      setJustUnlocked((pending) => (pending.includes(spriteId) ? pending : [...pending, spriteId]))
+      return [...list, spriteId]
+    })
+  }, [])
+
+  // 登場動畫播完，從名單移除
+  const finishReveal = useCallback((id) => {
+    setJustUnlocked((pending) => pending.filter((x) => x !== id))
+  }, [])
+
+  return { isUnlocked, justUnlocked, solve, finishReveal }
+}
+
+// 這一關答對過了嗎？
+export function isSolved(quiz) {
+  try {
+    return localStorage.getItem(solvedKey(quiz)) === 'true'
+  } catch {
+    return false
+  }
 }

@@ -1,8 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import Scenery from './components/Scenery.jsx'
 import Home from './pages/Home.jsx'
 import Menu from './pages/Menu.jsx'
-import { PAGE_COUNT, SECTION_POSITIONS } from './data/scenes.js'
+import Q1 from './pages/Q1.jsx'
+import { SECTION_PATHS, SECTION_POSITIONS, SWIPE_PAGE_COUNT, sectionOf } from './data/scenes.js'
+import { useHashPath } from './hooks/useHashPath.js'
+import { isSolved, useUnlocked } from './hooks/useUnlocked.js'
 import styles from './App.module.css'
 
 // 翻頁後要鎖多久（毫秒），比 1 秒的轉場動畫稍長，避免連續狂滑翻過頭
@@ -13,22 +16,31 @@ const SWIPE_MIN = 50
 const WHEEL_MIN = 10
 
 export default function App() {
-  // activeIndex：現在在第幾頁（0 = 首頁、1 = 進度頁）
-  const [activeIndex, setActiveIndex] = useState(0)
+  // 網址決定現在在哪一頁（0 = 首頁、1 = 進度頁、2 = 第一關）
+  const [path, navigate] = useHashPath()
+  const activeIndex = sectionOf(path)
+  // 遊戲進度只在這裡讀一次，再分給各頁，大家看到的是同一份
+  const progress = useUnlocked()
+
   // indexRef：同一個頁數的「備份」，讓事件處理器隨時讀到最新值
-  const indexRef = useRef(0)
+  const indexRef = useRef(activeIndex)
+  indexRef.current = activeIndex
   const lockedUntil = useRef(0)
   const touchStartY = useRef(null)
 
-  // 翻到指定的頁；冷卻時間內、超出範圍或已經在那一頁就不動
-  const goTo = useCallback((index) => {
-    const now = Date.now()
-    const next = Math.min(Math.max(index, 0), PAGE_COUNT - 1)
-    if (now < lockedUntil.current || next === indexRef.current) return
-    lockedUntil.current = now + COOLDOWN_MS
-    indexRef.current = next
-    setActiveIndex(next)
-  }, [])
+  // 用滑動翻到首頁或進度頁；冷卻時間內、在關卡頁裡、或已經在那一頁就不動
+  const goTo = useCallback(
+    (index) => {
+      const now = Date.now()
+      const current = indexRef.current
+      if (current >= SWIPE_PAGE_COUNT) return
+      const next = Math.min(Math.max(index, 0), SWIPE_PAGE_COUNT - 1)
+      if (now < lockedUntil.current || next === current) return
+      lockedUntil.current = now + COOLDOWN_MS
+      navigate(SECTION_PATHS[next])
+    },
+    [navigate],
+  )
 
   // 往上（-1）或往下（+1）翻一頁
   const step = useCallback((direction) => goTo(indexRef.current + direction), [goTo])
@@ -61,6 +73,19 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey)
   }, [step])
 
+  // 在進度頁點精靈：答對過就直接看通關回顧，沒答過就從引導頁開始
+  const openQuiz = useCallback(
+    (quiz) => {
+      if (quiz !== 'Q1') return
+      navigate(isSolved('Q1') ? '/q1/success' : '/q1/intro')
+    },
+    [navigate],
+  )
+
+  // 第一關答對：記錄並解鎖阿瑪卡仙子
+  const { solve } = progress
+  const solveQ1 = useCallback(() => solve('Q1', 'amaka'), [solve])
+
   return (
     <div
       className={styles.app}
@@ -84,7 +109,8 @@ export default function App() {
       {/* 前景：所有頁面上下疊在一起，整串用 transform 往上推 */}
       <main className={styles.slider}>
         <Home active={activeIndex === 0} onStart={() => goTo(1)} />
-        <Menu active={activeIndex === 1} />
+        <Menu active={activeIndex === 1} progress={progress} onOpenQuiz={openQuiz} />
+        <Q1 path={path} active={activeIndex === 2} navigate={navigate} onSolved={solveQ1} />
       </main>
     </div>
   )

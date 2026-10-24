@@ -1,13 +1,28 @@
 // 每一頁（由上到下）對應長背景圖要停在哪裡（background-position-y 的百分比）
 // 0% = 最上面的冰山；數字越大，畫面越往下滑
 export const SECTION_POSITIONS = [
-  0, // 第 1 頁：開場首頁
-  20, // 第 2 頁：進度頁
-  // 之後的關卡照順序加：40, 60, 80
+  0, // 第 1 頁：開場首頁       #/
+  20, // 第 2 頁：進度頁        #/menu
+  40, // 第 3 頁：第一關 Q1     #/q1/intro、#/q1/question、#/q1/success
+  // 之後的關卡照順序加：60, 80
 ]
 
 // 總共有幾頁
 export const PAGE_COUNT = SECTION_POSITIONS.length
+
+// 上下滑動只能在前幾頁之間切換（首頁 ↔ 進度頁）；
+// 關卡頁只能從進度頁點精靈進去，免得玩家滑一下就跳過題目
+export const SWIPE_PAGE_COUNT = 2
+
+// 網址 → 第幾頁
+export function sectionOf(path) {
+  if (path.startsWith('/q1')) return 2
+  if (path === '/menu') return 1
+  return 0
+}
+
+// 第幾頁 → 網址（滑動翻頁時用）
+export const SECTION_PATHS = ['/', '/menu']
 
 // 長背景圖的原始尺寸，用來算提燈這類「黏在圖上」的東西要放哪
 export const BG_IMAGE = {

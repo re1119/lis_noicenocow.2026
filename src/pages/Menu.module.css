@@ -2,6 +2,7 @@
    標題區拿它需要的高度，剩下的全部給 2x2 精靈陣列；
    螢幕矮，精靈圖就自動縮小，所以永遠不會被切掉 */
 .menu {
+  position: relative;
   display: flex;
   flex-direction: column;
   padding: calc(clamp(20px, 5cqh, 48px) + env(safe-area-inset-top)) var(--space-m)
@@ -131,8 +132,153 @@
   opacity: 1;
 }
 
-.unlocked {
-  cursor: default;
+/* ---------- 已解鎖：輕微懸浮（沒有光暈，因為不需要再引誘點擊了） ---------- */
+.idle {
+  animation: idleFloat 4s ease-in-out infinite;
+}
+
+@keyframes idleFloat {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -5px;
+  }
+}
+
+/* ---------- 剛解鎖的登場動畫 ----------
+   1. 等 --reveal-delay（頁面滑到、格子浮現）
+   2. 剪影淡出，彩色圖從 80% 大小慢慢放大淡入（1 秒）
+   3. 放大到原尺寸的瞬間，背後爆出一圈光＋8 顆小星星 */
+.revealing .locked {
+  transition: opacity 0.6s ease var(--reveal-delay);
+}
+
+.revealing .color {
+  animation: reveal 1s cubic-bezier(0.25, 0.8, 0.3, 1) var(--reveal-delay) both;
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    scale: 0.8;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+.revealing .name {
+  transition-delay: calc(var(--reveal-delay) + 0.6s);
+}
+
+/* 星光爆發：疊在圖片「上面」的中心
+   screen（濾色）混合：只會讓畫面變亮，像一道光閃過精靈身上 */
+.burst {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: 0;
+  height: 0;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+/* 柔和光圈：從中心擴散開再消失 */
+.burstRing {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 200px;
+  height: 200px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(var(--color-glow), 0.6) 30%,
+    rgba(var(--color-glow), 0) 70%
+  );
+  opacity: 0;
+  animation: burstRing 0.9s ease-out calc(var(--reveal-delay) + 0.85s) both;
+}
+
+@keyframes burstRing {
+  0% {
+    opacity: 0;
+    scale: 0.2;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    scale: 1.6;
+  }
+}
+
+/* 小星星：從中心朝 --angle 方向飛出去，邊飛邊縮小消失 */
+.burstStar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  background: radial-gradient(circle, #ffffff 0%, rgb(var(--color-glow)) 70%);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  filter: drop-shadow(0 0 4px rgba(var(--color-glow), 0.9));
+  opacity: 0;
+  rotate: var(--angle);
+  animation: burstStar 0.9s cubic-bezier(0.2, 0.8, 0.3, 1) calc(var(--reveal-delay) + 0.85s) both;
+}
+
+@keyframes burstStar {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.4);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-96px) scale(1);
+  }
+}
+
+/* ---------- 「準備中」提示：毛玻璃膠囊 ---------- */
+.toast {
+  position: absolute;
+  left: 50%;
+  bottom: calc(clamp(16px, 4cqh, 36px) + env(safe-area-inset-bottom));
+  z-index: 5;
+  width: max-content;
+  max-width: calc(100% - 40px);
+  margin: 0;
+  padding: 10px 18px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  background: var(--glass-dark-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
+  font-size: 14px;
+  line-height: 1.6;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  translate: -50% 12px;
+  pointer-events: none;
+  transition: opacity 0.3s ease, translate 0.3s ease;
+}
+
+.toastShow {
+  opacity: 1;
+  translate: -50% 0;
 }
 
 /* 名字：極淡的毛玻璃小標籤，壓在灌木叢或雪地上都讀得清楚 */

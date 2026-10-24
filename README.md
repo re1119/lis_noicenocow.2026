@@ -20,16 +20,23 @@ push 到 main 後約 1–2 分鐘，GitHub Actions 會自動 build 並更新網�
 
 ## 檔案結構
 
-- `src/App.jsx`：單頁捲動容器（一屏一屏吸附），依捲動位置更新背景
+- `src/App.jsx`：全螢幕翻頁容器，依網址決定在第幾頁、背景滑到哪裡
 - `src/components/Scenery.jsx`：長背景圖、燭火、迷霧
-- `src/pages/Home.jsx`：第 1 屏，開場首頁
-- `src/pages/Menu.jsx`：第 2 屏，進度頁
-- `src/data/scenes.js`：每一屏背景停在哪個百分比（新增關卡在這裡加）
-- `src/data/sprites.js`：四位精靈的名字與圖片
-- `src/hooks/useUnlocked.js`：解鎖狀態存進 LocalStorage
+- `src/pages/Home.jsx`：第 1 頁，開場首頁 `#/`
+- `src/pages/Menu.jsx`：第 2 頁，進度頁 `#/menu`（含解鎖登場動畫）
+- `src/pages/Q1.jsx`：第 3 頁，第一關 `#/q1/intro` → `#/q1/question` → `#/q1/success`
+- `src/data/scenes.js`：每一頁背景停在哪個百分比、網址對應哪一頁（新增關卡在這裡加）
+- `src/data/sprites.js`：四位精靈的名字、圖片、對應的關卡
+- `src/hooks/useHashPath.js`：讀寫網址 # 後面的路徑
+- `src/hooks/useUnlocked.js`：解鎖狀態與 isQ1Solved 存進 LocalStorage
 - `public/images/`：壓縮過的圖片素材
+
+## 新增文字之後
+
+網站加了新的文字（新關卡、新題目），要在專案資料夾執行 `npm run fonts`，
+重新產生瘦身字體，否則新的字會顯示成備用字體。
 
 ## 測試小技巧
 
-想把精靈全部變回未解鎖：在瀏覽器開發者工具 Console 輸入
-`localStorage.removeItem('noicenocow:unlocked')` 再重新整理。
+想把進度全部清掉、從頭玩：在瀏覽器開發者工具 Console 輸入
+`localStorage.clear()` 再重新整理。
