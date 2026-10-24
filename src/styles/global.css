@@ -3,27 +3,26 @@
    ============================================ */
 
 /* ---------- 字體 ----------
-   local()：先找訪客電腦裡有沒有裝這款字。
-   之後把字體檔放進 public/fonts/，再把下面註解掉的 url() 打開，
-   所有人（包含手機）才都看得到。 */
+   字體檔跟著網站一起放上去，所有人的手機都看得到。
+   檔案是「瘦身版」，只含網站用到的字；加了新文字後要執行 npm run fonts 重新產生。
+   標題：匯文明朝體（免費可商用）／內文：源泉圓體 TW Medium（SIL OFL 開源授權） */
 @font-face {
-  font-family: 'ZhaohuaMinA';
-  src: local('ZhaohuaMinA'), local('昭華明朝體');
-  /* , url('../fonts/ZhaohuaMinA.woff2') format('woff2'); */
+  font-family: 'Huiwen Mincho';
+  src: url('../assets/fonts/huiwen-mincho.woff2') format('woff2');
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'GenSenRounded2 TW';
-  src: local('GenSenRounded2 TW'), local('GenSenRounded2 TW R'), local('源泉圓體 TW');
-  /* , url('../fonts/GenSenRounded2TW-R.woff2') format('woff2'); */
+  font-family: 'GenSen Rounded TW';
+  src: url('../assets/fonts/gensen-rounded2-tw-m.woff2') format('woff2');
+  font-weight: 400 700; /* 不管寫 400 或 500 都用同一個 Medium 檔，避免瀏覽器自己假加粗 */
   font-display: swap;
 }
 
 :root {
   /* 字體 */
-  --font-title: 'ZhaohuaMinA', 'Noto Serif TC', serif;
-  --font-body: 'GenSenRounded2 TW', 'Noto Sans TC', sans-serif;
+  --font-title: 'Huiwen Mincho', 'Noto Serif TC', serif;
+  --font-body: 'GenSen Rounded TW', 'Noto Sans TC', sans-serif;
 
   /* 顏色 */
   --color-text: #ffffff;
