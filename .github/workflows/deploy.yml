@@ -1,0 +1,51 @@
+# 自動部署到 GitHub Pages
+# 每次 push 到 main，GitHub 會自動：安裝套件 → npm run build → 把 dist/ 放上網站
+# 在 repo 的 Actions 分頁可以看到每次的執行狀況（綠勾＝成功，紅叉＝失敗）
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # 也可以在 Actions 分頁手動按按鈕重新部署
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同時只跑一個部署，新的 push 會排在後面
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # 依照 package-lock.json 安裝一模一樣的套件版本
+      - run: npm ci
+
+      # 打包成 dist/（字體檔已經瘦身好放在 src/assets/fonts，這裡不用再跑 npm run fonts）
+      - run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -10,6 +10,14 @@ npm run dev     # 開發模式，打開 http://localhost:5173
 npm run build   # 打包成 dist/，要上線時用
 ```
 
+## 網址
+
+- 原始碼：https://github.com/re1119/lis_noicenocow.2026
+- 網站：https://re1119.github.io/lis_noicenocow.2026/
+- 部署狀況：https://github.com/re1119/lis_noicenocow.2026/actions
+
+push 到 main 後約 1–2 分鐘，GitHub Actions 會自動 build 並更新網站。
+
 ## 檔案結構
 
 - `src/App.jsx`：路由與換頁淡入淡出
