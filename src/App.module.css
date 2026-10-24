@@ -1,0 +1,43 @@
+/* 最外層容器：手機上滿版，桌機上置中成一支手機的寬度 */
+.app {
+  position: relative;
+  width: 100%;
+  max-width: var(--app-max-width);
+  height: 100vh;
+  height: 100dvh; /* dvh：扣掉手機瀏覽器網址列後的真實高度 */
+  margin: 0 auto;
+  overflow: hidden;
+  /* 讓裡面可以用 cqw / cqh（容器寬高的 1%）來對齊背景圖 */
+  container-type: size;
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.45);
+}
+
+/* 前景頁面層：疊在背景上，內容太長時可以上下捲 */
+.page {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.pageIn {
+  animation: fadeIn var(--fade-duration) ease-out both;
+}
+
+.pageOut {
+  opacity: 0;
+  transition: opacity var(--fade-duration) ease-in;
+  pointer-events: none;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

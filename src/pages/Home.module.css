@@ -1,0 +1,71 @@
+.home {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(var(--space-xl) + env(safe-area-inset-top)) var(--space-m)
+    calc(var(--space-xl) + env(safe-area-inset-bottom));
+  text-align: center;
+}
+
+.titleBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-m);
+  margin-top: 6vh;
+}
+
+/* 主標題：三行、字距拉開，像冰原上的刻字 */
+.title {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: var(--text-hero);
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.6em;
+  /* letter-spacing 會在最後一個字後面也多一格，往右推回來保持置中 */
+  margin-right: -0.6em;
+  color: var(--color-text);
+  text-shadow: 0 2px 12px rgba(10, 20, 35, 0.35);
+}
+
+.subtitle {
+  max-width: 20em;
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: 1.8;
+  color: var(--color-text);
+  opacity: 0.8;
+  text-shadow: 0 1px 6px rgba(10, 20, 35, 0.45);
+}
+
+/* Start：透明底、白框、圓角 */
+.start {
+  min-width: 160px;
+  min-height: 48px; /* 手指好按的大小 */
+  padding: var(--space-s) var(--space-l);
+  border: 1.5px solid rgba(255, 255, 255, 0.9);
+  border-radius: var(--radius-pill);
+  /* 幾乎透明，只加一點深色霧面，白字在亮雪地上才讀得到 */
+  background: rgba(28, 38, 51, 0.16);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  font-family: var(--font-title);
+  font-size: 22px;
+  letter-spacing: 0.12em;
+  text-shadow: 0 1px 6px rgba(10, 20, 35, 0.4);
+  cursor: pointer;
+  transition: background-color 0.25s ease, transform 0.15s ease;
+}
+
+.start:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.start:active {
+  transform: scale(0.97);
+}

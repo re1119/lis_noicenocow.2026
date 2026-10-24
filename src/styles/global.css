@@ -1,0 +1,106 @@
+/* ============================================
+   全站設定：字體、顏色、間距都集中在這裡
+   ============================================ */
+
+/* ---------- 字體 ----------
+   local()：先找訪客電腦裡有沒有裝這款字。
+   之後把字體檔放進 public/fonts/，再把下面註解掉的 url() 打開，
+   所有人（包含手機）才都看得到。 */
+@font-face {
+  font-family: 'ZhaohuaMinA';
+  src: local('ZhaohuaMinA'), local('昭華明朝體');
+  /* , url('../fonts/ZhaohuaMinA.woff2') format('woff2'); */
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GenSenRounded2 TW';
+  src: local('GenSenRounded2 TW'), local('GenSenRounded2 TW R'), local('源泉圓體 TW');
+  /* , url('../fonts/GenSenRounded2TW-R.woff2') format('woff2'); */
+  font-display: swap;
+}
+
+:root {
+  /* 字體 */
+  --font-title: 'ZhaohuaMinA', 'Noto Serif TC', serif;
+  --font-body: 'GenSenRounded2 TW', 'Noto Sans TC', sans-serif;
+
+  /* 顏色 */
+  --color-text: #ffffff;
+  --color-ink: #2f3540;          /* 雪地上的深色字（精靈名字） */
+  --color-night: #1c2633;        /* 冰原夜空藍，桌機兩側的底色 */
+  --color-lantern: 255, 196, 110; /* 燭火色，寫成 RGB 方便調透明度 */
+  --color-fog: 255, 255, 255;
+
+  /* 字級 */
+  --text-hero: 48px;
+  --text-h2: 26px;
+  --text-body: 15px;
+  --text-small: 13px;
+
+  /* 間距 */
+  --space-xs: 8px;
+  --space-s: 12px;
+  --space-m: 20px;
+  --space-l: 32px;
+  --space-xl: 48px;
+
+  /* 圓角 */
+  --radius-pill: 999px;
+
+  /* 動態：背景一鏡到底的滑動 */
+  --bg-duration: 1s;
+  --bg-ease: ease-in-out;
+  --fade-duration: 450ms;
+
+  /* 手機版畫面最寬多少（桌機會置中） */
+  --app-max-width: 430px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--color-night);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+/* 鍵盤操作時看得到焦點框 */
+:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}
+
+/* 有開「減少動態效果」的使用者：關掉大部分動畫 */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --bg-duration: 0.01s;
+    --fade-duration: 0.01s;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01s !important;
+    animation-iteration-count: 1 !important;
+  }
+}
