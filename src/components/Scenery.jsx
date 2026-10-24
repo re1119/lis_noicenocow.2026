@@ -1,12 +1,9 @@
-import { BG_IMAGE, FIRST_SCENE_HEIGHT, LANTERN, getScenePosition } from '../data/scenes.js'
+import { BG_IMAGE, FIRST_SCENE_HEIGHT, LANTERN } from '../data/scenes.js'
 import styles from './Scenery.module.css'
 
-// 背景場景：長圖本身不動畫，只靠 background-position-y 滑動；
+// 背景場景：長圖本身不動畫，位置由捲動決定（CSS 變數 --p，見 App.jsx）；
 // 燭火、霧是另外疊上去的 div，製造「活著」的感覺
-export default function Scenery({ pathname }) {
-  const percent = getScenePosition(pathname)
-  const isHome = pathname === '/'
-
+export default function Scenery() {
   // 背景圖要畫多寬：讓第一段場景剛好一個螢幕高（cqh = 畫面高的 1%），
   // 但至少要和畫面一樣寬，不然兩側會露出空白
   const sceneWidthCqh = (BG_IMAGE.width / FIRST_SCENE_HEIGHT) * 100
@@ -18,7 +15,6 @@ export default function Scenery({ pathname }) {
       style={{
         '--img-w': `max(100cqw, ${sceneWidthCqh}cqh)`,
         '--img-h': `calc(var(--img-w) * ${ratio})`,
-        '--p': percent / 100,
         // 原圖上的比例位置，乘上實際畫出來的圖寬
         '--lantern-x': LANTERN.x / BG_IMAGE.width,
         '--lantern-y': LANTERN.y / BG_IMAGE.width,
@@ -29,10 +25,7 @@ export default function Scenery({ pathname }) {
       {/* 1. 長背景圖 */}
       <div
         className={styles.bg}
-        style={{
-          backgroundImage: `url(${import.meta.env.BASE_URL}${BG_IMAGE.src})`,
-          backgroundPositionY: `${percent}%`,
-        }}
+        style={{ backgroundImage: `url(${import.meta.env.BASE_URL}${BG_IMAGE.src})` }}
       />
 
       {/* 2. 跟著背景一起滑的圖層：燭火要黏在圖上的提燈位置 */}
@@ -46,9 +39,9 @@ export default function Scenery({ pathname }) {
       <div className={`${styles.fog} ${styles.fogBack}`} />
       <div className={`${styles.fog} ${styles.fogFront}`} />
 
-      {/* 4. 頂部壓暗：讓白字在淺色霧地上也看得清楚 */}
+      {/* 4. 頂部壓暗：讓白字在淺色霧地上也看得清楚；越往進度頁滑越深 */}
       <div className={styles.scrim} />
-      <div className={`${styles.scrim} ${styles.scrimStrong}`} style={{ opacity: isHome ? 0 : 1 }} />
+      <div className={`${styles.scrim} ${styles.scrimStrong}`} />
     </div>
   )
 }

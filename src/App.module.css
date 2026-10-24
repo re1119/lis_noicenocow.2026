@@ -3,41 +3,44 @@
   position: relative;
   width: 100%;
   max-width: var(--app-max-width);
-  height: 100vh;
-  height: 100dvh; /* dvh：扣掉手機瀏覽器網址列後的真實高度 */
+  height: 100vh; /* 舊瀏覽器看不懂 dvh 時的備案 */
+  height: 100dvh; /* dvh：扣掉手機瀏覽器網址列、底部工具列後的真實可見高度 */
   margin: 0 auto;
   overflow: hidden;
-  /* 讓裡面可以用 cqw / cqh（容器寬高的 1%）來對齊背景圖 */
+  /* 讓裡面可以用 cqw / cqh（容器寬高的 1%）來排版、對齊背景圖 */
   container-type: size;
   box-shadow: 0 0 60px rgba(0, 0, 0, 0.45);
+  /* 捲動位置（由 App.jsx 即時更新），先給預設值 */
+  --p: 0;
+  --menu-progress: 0;
 }
 
-/* 前景頁面層：疊在背景上，內容太長時可以上下捲 */
-.page {
+/* 捲動容器：疊在背景上，一屏一屏吸附停靠 */
+.scroller {
   position: absolute;
   inset: 0;
   z-index: 10;
   overflow-y: auto;
-  overscroll-behavior: contain;
+  overscroll-behavior: contain; /* 滑到底不會帶動整個瀏覽器頁面彈跳 */
+  scroll-snap-type: y mandatory; /* 放手後一定停在某一屏的開頭 */
+  scroll-behavior: smooth;
+  scrollbar-width: none; /* 隱藏捲軸，像 App 一樣乾淨 */
 }
 
-.pageIn {
-  animation: fadeIn var(--fade-duration) ease-out both;
+.scroller::-webkit-scrollbar {
+  display: none;
 }
 
-.pageOut {
-  opacity: 0;
-  transition: opacity var(--fade-duration) ease-in;
-  pointer-events: none;
+/* 每一屏：剛好一個畫面高，吸附在開頭 */
+.scroller > section {
+  height: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always; /* 快速一甩也不會直接跳過一屏 */
+  overflow: hidden;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
+@media (prefers-reduced-motion: reduce) {
+  .scroller {
+    scroll-behavior: auto;
   }
 }

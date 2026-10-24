@@ -1,9 +1,13 @@
-import { useNavigate } from 'react-router-dom'
 import styles from './Home.module.css'
 
-// 畫面一：開場首頁
+// 畫面一：開場首頁（第 1 屏）
 export default function Home() {
-  const navigate = useNavigate()
+  // 點 Start：平滑捲到下一屏的進度頁
+  // 有開「減少動態效果」的使用者直接跳過去，不播滑動動畫
+  const goToMenu = () => {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    document.getElementById('menu')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' })
+  }
 
   return (
     <section className={styles.home}>
@@ -21,7 +25,7 @@ export default function Home() {
         </p>
       </div>
 
-      <button type="button" className={styles.start} onClick={() => navigate('/menu')}>
+      <button type="button" className={styles.start} onClick={goToMenu}>
         Start
       </button>
     </section>

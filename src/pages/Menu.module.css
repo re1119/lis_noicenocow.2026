@@ -1,79 +1,67 @@
+/* 進度頁：高度固定一屏（App.module.css），裡面用 Flex 分配空間
+   標題區拿它需要的高度，剩下的全部給 2x2 精靈陣列；
+   螢幕矮，精靈圖就自動縮小，所以永遠不會被切掉 */
 .menu {
-  position: relative;
-  min-height: 100%;
   display: flex;
   flex-direction: column;
-  padding: calc(var(--space-l) + env(safe-area-inset-top)) var(--space-m)
-    calc(var(--space-l) + env(safe-area-inset-bottom));
-}
-
-/* 左上角返回 */
-.back {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 44px;
-  padding: 0 var(--space-xs);
-  margin-left: calc(var(--space-xs) * -1);
-  color: var(--color-text);
-  font-size: var(--text-small);
-  letter-spacing: 0.15em;
-  text-decoration: none;
-  opacity: 0.85;
-}
-
-.back i {
-  font-size: 22px;
-}
-
-.back span {
-  text-decoration: underline;
-  text-underline-offset: 4px;
+  padding: calc(clamp(20px, 5cqh, 48px) + env(safe-area-inset-top)) var(--space-m)
+    calc(clamp(12px, 3cqh, 32px) + env(safe-area-inset-bottom));
 }
 
 /* ---------- 頂部標題 ---------- */
 .header {
-  margin-top: var(--space-m);
+  flex: none;
   text-align: center;
 }
 
 .title {
   margin: 0;
   font-family: var(--font-title);
-  font-size: var(--text-h2);
+  font-size: clamp(21px, 3.3cqh, var(--text-h2));
   font-weight: 500;
   letter-spacing: 0.25em;
   margin-right: -0.25em;
-  text-shadow: 0 2px 10px rgba(10, 20, 35, 0.4);
+  text-shadow: var(--shadow-text-strong);
 }
 
 .subtitle {
   max-width: 18em;
-  margin: var(--space-s) auto 0;
-  font-size: var(--text-body);
-  line-height: 1.8;
-  opacity: 0.8;
-  text-shadow: 0 1px 6px rgba(10, 20, 35, 0.5);
+  margin: clamp(6px, 1.5cqh, 12px) auto 0;
+  font-size: clamp(13px, 1.9cqh, var(--text-body));
+  line-height: 1.75;
+  opacity: 0.95;
+  text-shadow: var(--shadow-text);
 }
 
-/* ---------- 2x2 精靈陣列 ---------- */
+/* ---------- 2x2 精靈陣列 ----------
+   flex: 1 + min-height: 0：吃掉標題下方剩下的所有高度，但允許被壓縮 */
 .grid {
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-m) var(--space-s);
-  margin: auto 0 0;
-  padding: var(--space-l) 0 0;
+  grid-template-rows: repeat(2, minmax(0, 1fr)); /* 兩列平分高度，可以縮到很小 */
+  gap: clamp(8px, 2cqh, 20px) var(--space-s);
+  margin: clamp(12px, 3cqh, 32px) 0 0;
+  padding: 0;
   list-style: none;
 }
 
+.cell {
+  min-height: 0;
+  display: flex;
+}
+
 .card {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-xs);
+  justify-content: flex-end; /* 圖片和名字靠格子底部，空間多時上方留白 */
+  gap: clamp(4px, 1cqh, 10px);
   width: 100%;
-  padding: var(--space-xs) 0;
+  padding: 0;
   border: 0;
   background: none;
   cursor: pointer;
@@ -83,12 +71,14 @@
   transform: scale(0.96);
 }
 
-/* 圖片框：固定高度，兩張圖疊在同一個位置 */
+/* 圖片框：高度＝格子扣掉名字後剩下的空間（最多 200px），兩張圖疊在一起 */
 .figure {
   position: relative;
   display: block;
+  flex: 1;
+  min-height: 0;
   width: 100%;
-  height: min(26cqh, 190px);
+  max-height: 200px;
   transition: transform 0.15s ease;
 }
 
@@ -97,7 +87,7 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: contain; /* 等比例縮放，不變形、不裁切 */
   transition: opacity 0.8s ease;
 }
 
@@ -124,18 +114,24 @@
   cursor: default;
 }
 
-/* 名字：雪地很亮，用深色字才看得清楚 */
+/* 名字：極淡的毛玻璃小標籤，壓在灌木叢或雪地上都讀得清楚 */
 .name {
+  flex: none;
+  padding: 2px 12px 2px calc(12px + 0.2em); /* 右邊少一點，抵消字距造成的偏移 */
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.6);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 8px rgba(20, 30, 45, 0.12);
   font-family: var(--font-title);
-  font-size: 15px;
+  font-size: clamp(13px, 1.9cqh, 15px);
   letter-spacing: 0.2em;
-  color: var(--color-ink);
-  /* 淡白光暈：名字壓在灌木叢上時也分得出來 */
-  text-shadow: 0 0 6px rgba(255, 255, 255, 0.95), 0 0 12px rgba(255, 255, 255, 0.8);
-  opacity: 0.5;
-  transition: opacity 0.8s ease;
+  /* 未解鎖：字色變淡（只淡化文字、不淡化標籤，仍然讀得到） */
+  color: rgba(47, 53, 64, 0.6);
+  transition: color 0.8s ease, background-color 0.8s ease;
 }
 
 .unlocked .name {
-  opacity: 1;
+  color: var(--color-ink);
+  background: rgba(255, 255, 255, 0.78);
 }

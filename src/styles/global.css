@@ -47,10 +47,9 @@
   /* 圓角 */
   --radius-pill: 999px;
 
-  /* 動態：背景一鏡到底的滑動 */
-  --bg-duration: 1s;
-  --bg-ease: ease-in-out;
-  --fade-duration: 450ms;
+  /* 白字的陰影：讓白字壓在亮色霧地上也讀得清楚 */
+  --shadow-text: 0 1px 2px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.6);
+  --shadow-text-strong: 0 1px 3px rgba(0, 0, 0, 0.35), 0 2px 14px rgba(0, 0, 0, 0.55);
 
   /* 手機版畫面最寬多少（桌機會置中） */
   --app-max-width: 430px;
@@ -70,6 +69,8 @@ body,
 }
 
 body {
+  overflow: hidden; /* 只讓網站裡的捲動容器捲，整個瀏覽器頁面不動 */
+  overscroll-behavior: none;
   background: var(--color-night);
   color: var(--color-text);
   font-family: var(--font-body);
@@ -92,10 +93,6 @@ button {
 
 /* 有開「減少動態效果」的使用者：關掉大部分動畫 */
 @media (prefers-reduced-motion: reduce) {
-  :root {
-    --bg-duration: 0.01s;
-    --fade-duration: 0.01s;
-  }
   *,
   *::before,
   *::after {

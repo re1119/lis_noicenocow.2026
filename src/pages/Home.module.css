@@ -1,11 +1,13 @@
+/* 這一屏的高度由 App.module.css 統一設成 100%（＝一個畫面）
+   下面的大小都用 cqh（畫面高的 1%）搭配 clamp(最小, 理想, 最大)，
+   矮的手機會自動縮小，高的手機也不會無限放大 */
 .home {
-  min-height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: calc(var(--space-xl) + env(safe-area-inset-top)) var(--space-m)
-    calc(var(--space-xl) + env(safe-area-inset-bottom));
+  padding: calc(clamp(24px, 6cqh, 56px) + env(safe-area-inset-top)) var(--space-m)
+    calc(clamp(20px, 5cqh, 48px) + env(safe-area-inset-bottom));
   text-align: center;
 }
 
@@ -13,8 +15,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-m);
-  margin-top: 6vh;
+  gap: clamp(12px, 2.5cqh, 20px);
+  margin-top: clamp(0px, 4cqh, 48px);
 }
 
 /* 主標題：三行、字距拉開，像冰原上的刻字 */
@@ -23,14 +25,14 @@
   flex-direction: column;
   margin: 0;
   font-family: var(--font-title);
-  font-size: var(--text-hero);
+  font-size: clamp(36px, 6cqh, var(--text-hero));
   font-weight: 500;
   line-height: 1.5;
   letter-spacing: 0.6em;
   /* letter-spacing 會在最後一個字後面也多一格，往右推回來保持置中 */
   margin-right: -0.6em;
   color: var(--color-text);
-  text-shadow: 0 2px 12px rgba(10, 20, 35, 0.35);
+  text-shadow: var(--shadow-text-strong);
 }
 
 .subtitle {
@@ -39,25 +41,26 @@
   font-size: var(--text-body);
   line-height: 1.8;
   color: var(--color-text);
-  opacity: 0.8;
-  text-shadow: 0 1px 6px rgba(10, 20, 35, 0.45);
+  opacity: 0.92;
+  text-shadow: var(--shadow-text);
 }
 
 /* Start：透明底、白框、圓角 */
 .start {
+  flex: none;
   min-width: 160px;
   min-height: 48px; /* 手指好按的大小 */
   padding: var(--space-s) var(--space-l);
   border: 1.5px solid rgba(255, 255, 255, 0.9);
   border-radius: var(--radius-pill);
   /* 幾乎透明，只加一點深色霧面，白字在亮雪地上才讀得到 */
-  background: rgba(28, 38, 51, 0.16);
+  background: rgba(28, 38, 51, 0.2);
   -webkit-backdrop-filter: blur(3px);
   backdrop-filter: blur(3px);
   font-family: var(--font-title);
   font-size: 22px;
   letter-spacing: 0.12em;
-  text-shadow: 0 1px 6px rgba(10, 20, 35, 0.4);
+  text-shadow: var(--shadow-text);
   cursor: pointer;
   transition: background-color 0.25s ease, transform 0.15s ease;
 }
