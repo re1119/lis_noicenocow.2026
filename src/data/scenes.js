@@ -6,6 +6,7 @@ export const SECTION_POSITIONS = [
   40, // 第 3 頁：第一關 Q1     #/q1/intro、#/q1/question、#/q1/success
   60, // 第 4 頁：第二關 Q2     #/q2/intro、#/q2/question、#/q2/success
   80, // 第 5 頁：第三關 Q3     #/q3/intro、#/q3/game、#/q3/success
+  100, // 第 6 頁：第四關 Q4    #/q4/intro、#/q4/quiz、#/q4/success（長圖最底端）
 ]
 
 // 總共有幾頁
@@ -20,6 +21,7 @@ export function sectionOf(path) {
   if (path.startsWith('/q1')) return 2
   if (path.startsWith('/q2')) return 3
   if (path.startsWith('/q3')) return 4
+  if (path.startsWith('/q4')) return 5
   if (path === '/menu') return 1
   return 0
 }

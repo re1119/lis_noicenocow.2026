@@ -5,6 +5,7 @@ import Menu from './pages/Menu.jsx'
 import Q1 from './pages/Q1.jsx'
 import Q2 from './pages/Q2.jsx'
 import Q3 from './pages/Q3.jsx'
+import Q4 from './pages/Q4.jsx'
 import { SECTION_PATHS, SECTION_POSITIONS, SWIPE_PAGE_COUNT, sectionOf } from './data/scenes.js'
 import { useHashPath } from './hooks/useHashPath.js'
 import { isSolved, useUnlocked } from './hooks/useUnlocked.js'
@@ -90,6 +91,7 @@ export default function App() {
   const solveQ1 = useCallback(() => solve('Q1', 'amaka'), [solve])
   const solveQ2 = useCallback(() => solve('Q2', 'snufkin'), [solve])
   const solveQ3 = useCallback(() => solve('Q3', 'moomin'), [solve])
+  const solveQ4 = useCallback(() => solve('Q4', 'little-my'), [solve])
 
   return (
     <div
@@ -118,6 +120,7 @@ export default function App() {
         <Q1 path={path} active={activeIndex === 2} navigate={navigate} onSolved={solveQ1} />
         <Q2 path={path} active={activeIndex === 3} navigate={navigate} onSolved={solveQ2} />
         <Q3 path={path} active={activeIndex === 4} navigate={navigate} onSolved={solveQ3} />
+        <Q4 path={path} active={activeIndex === 5} navigate={navigate} onSolved={solveQ4} />
       </main>
     </div>
   )

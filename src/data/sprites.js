@@ -28,6 +28,6 @@ export const SPRITES = [
     name: '亞美',
     lockedImg: 'images/little-my-locked.png',
     unlockedImg: 'images/little-my-unlocked.png',
-    quiz: null,
+    quiz: 'Q4',
   },
 ]

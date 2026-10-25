@@ -5,16 +5,16 @@ import quiz from '../styles/quiz.module.css'
 const FADE_MS = 400
 
 // 網址 → 關卡裡的哪個畫面（intro 引導／question 作答或遊戲／success 通關）
-// 作答頁的網址可能是 /question（Q1、Q2）或 /game（Q3），都算 'question'
+// 作答頁的網址可能是 /question（Q1、Q2）、/game（Q3）或 /quiz（Q4），都算 'question'
 function stepOf(path) {
-  if (path.endsWith('/question') || path.endsWith('/game')) return 'question'
+  if (['/question', '/game', '/quiz'].some((end) => path.endsWith(end))) return 'question'
   if (path.endsWith('/success')) return 'success'
   return 'intro'
 }
 
 // 每一關共用的「舞台」：負責依網址切換畫面、淡入淡出、重播進場動畫
 // base：這一關的網址開頭，例如 '/q1'
-// playPath：作答頁的網址結尾，預設 'question'，Q3 是 'game'
+// playPath：作答頁的網址結尾，預設 'question'，Q3 是 'game'、Q4 是 'quiz'
 // renderStep(step, tools)：要顯示哪個畫面由各關卡自己決定
 export default function QuizStage({ base, playPath = 'question', label, path, active, navigate, renderStep }) {
   const step = stepOf(path)

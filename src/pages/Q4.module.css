@@ -1,0 +1,394 @@
+/* ============================================
+   第四關 Q4 專屬的樣式（共用的動畫、標題、毛玻璃在 styles/quiz.module.css）
+   風格：懸疑辦案 → 冷白月光、一點點暗紅、舊紙張的深棕字
+   ============================================ */
+
+/* ============ 任務指派（引導頁） ============ */
+.intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(12px, 2.5cqh, 24px);
+  height: 100%;
+  padding: calc(clamp(40px, 10cqh, 100px) + env(safe-area-inset-top)) var(--space-m)
+    calc(clamp(20px, 5cqh, 48px) + env(safe-area-inset-bottom));
+  text-align: center;
+}
+
+/* 懸疑感：冷白光暈＋一絲暗紅 */
+.introTitle {
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: clamp(18px, 2.7cqh, 21px);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-wrap: balance;
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.55),
+    0 0 14px rgba(220, 235, 255, 0.55),
+    0 0 30px rgba(200, 40, 50, 0.35);
+  animation: titleIn 1.6s ease-out both;
+  animation-delay: calc(var(--enter, 0s) + 0.1s);
+}
+
+/* 像在黑暗中慢慢顯影：從模糊到清楚 */
+@keyframes titleIn {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+.introFigure {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  max-height: 40cqh;
+  animation: figureIn 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--enter, 0s) + 0.4s);
+}
+
+@keyframes figureIn {
+  from {
+    opacity: 0;
+    scale: 0.85;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+.introFigure img {
+  height: 100%;
+  width: auto;
+  filter: drop-shadow(0 0 16px rgba(220, 235, 255, 0.5)) drop-shadow(0 12px 18px rgba(20, 30, 45, 0.35));
+}
+
+.mission {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(14px, 2.5cqh, 22px);
+  width: 100%;
+}
+
+.missionCard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin: 0;
+  padding: 16px 20px;
+  font-size: 15px;
+  line-height: 1.75;
+  letter-spacing: 0.04em;
+  text-align: left;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.missionCard i {
+  flex: none;
+  font-size: 22px;
+}
+
+.startButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.startButton i {
+  font-size: 18px;
+  transition: translate 0.25s ease;
+}
+
+.startButton:hover i {
+  translate: 4px 0;
+}
+
+/* ============ 警探筆記快問快答 ============ */
+.quiz {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(10px, 2cqh, 18px);
+  height: 100%;
+  padding: calc(clamp(18px, 3cqh, 28px) + env(safe-area-inset-top)) var(--space-m)
+    calc(clamp(16px, 3.5cqh, 36px) + env(safe-area-inset-bottom));
+}
+
+/* 進度：毛玻璃膠囊，和左上角返回鈕同一高度 */
+.progress {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-pill);
+  background: var(--glass-dark-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  font-family: var(--font-title);
+  font-size: 15px;
+  letter-spacing: 0.12em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.dots {
+  display: inline-flex;
+  gap: 5px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transition: background-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.dotOn {
+  background: #fff3d6;
+  box-shadow: 0 0 6px rgba(var(--color-glow), 0.8);
+}
+
+/* 題目區：吃掉剩下的高度 */
+.stage {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.slide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(14px, 2.5cqh, 24px);
+  height: 100%;
+}
+
+/* ---------- 筆記頁：底圖＋疊在書寫區的題目 ----------
+   container-type：讓裡面的字級可以用 cqi（筆記頁寬度的 1%），筆記頁縮小字也跟著縮 */
+.note {
+  position: relative;
+  flex: 0 1 auto;
+  min-height: 0;
+  height: min(50cqh, 100%);
+  aspect-ratio: 378 / 585;
+  container-type: inline-size;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 16px 36px rgba(10, 16, 26, 0.45), 0 2px 6px rgba(10, 16, 26, 0.3);
+}
+
+.noteImg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* 書寫區：上下兩條橫線之間（約 30% ~ 69%），右邊避開斜放的鋼筆
+   每一行是一個 span，照題目資料裡的 lines 斷行 */
+.noteText {
+  position: absolute;
+  left: 9%;
+  right: 19%;
+  top: 30%;
+  bottom: 31%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: clamp(13px, 6.2cqi, 18px);
+  line-height: 1.8;
+  letter-spacing: 0.04em;
+  text-align: center;
+  white-space: nowrap;
+  color: #3a2a1c; /* 深棕色，像寫在舊紙上的墨水 */
+  text-shadow: none;
+}
+
+/* ---------- 選項：垂直排列的毛玻璃按鈕 ---------- */
+.options {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 46px;
+  padding: 0 16px;
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  /* 深色毛玻璃：這一關的背景是亮雪地，白底半透明會讓白字看不清楚 */
+  background: var(--glass-dark-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  text-align: left;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, scale 0.12s ease;
+}
+
+@media (hover: hover) {
+  .option:not(:disabled):hover {
+    background: rgba(28, 38, 51, 0.5);
+    border-color: rgba(255, 255, 255, 0.55);
+  }
+}
+
+.option:not(:disabled):active {
+  scale: 0.98;
+}
+
+.option:disabled {
+  cursor: default;
+}
+
+.optionKey {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  font-size: 12px;
+}
+
+/* 答錯：發紅 */
+.wrong {
+  border-color: rgba(255, 130, 130, 0.8);
+  background: rgba(180, 50, 60, 0.55);
+  box-shadow: 0 0 14px rgba(255, 90, 90, 0.45);
+}
+
+/* 答對：發綠 */
+.correct {
+  border-color: rgba(160, 255, 190, 0.9);
+  background: rgba(40, 150, 80, 0.6);
+  box-shadow: 0 0 18px rgba(120, 255, 160, 0.55);
+}
+
+/* ============ 懸念通關頁 ============ */
+.success {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(14px, 2.8cqh, 26px);
+  height: 100%;
+  padding: calc(clamp(28px, 6cqh, 64px) + env(safe-area-inset-top)) var(--space-m)
+    calc(clamp(20px, 5cqh, 48px) + env(safe-area-inset-bottom));
+}
+
+/* 冷白月光：取代其他關卡的暖金光，保留懸疑感 */
+.moonGlow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 75% 45% at 50% 24%,
+    rgba(225, 238, 255, 0.4) 0%,
+    rgba(200, 220, 245, 0.14) 45%,
+    rgba(200, 220, 245, 0) 75%
+  );
+  animation: glowIn 2s ease-out both;
+  animation-delay: var(--enter, 0s);
+}
+
+@keyframes glowIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 沙漠雪：慢慢左右擺動＋柔和的光一明一暗（glowing-spin） */
+.flower {
+  position: relative;
+  flex: none;
+  height: clamp(160px, 30cqh, 260px);
+}
+
+.flower img {
+  height: 100%;
+  width: auto;
+  transform-origin: 50% 85%; /* 以花莖下方為軸心擺動，像被風輕輕吹動 */
+  animation: glowingSpin 9s ease-in-out infinite;
+}
+
+@keyframes glowingSpin {
+  0%,
+  100% {
+    rotate: -5deg;
+    filter: drop-shadow(0 0 10px rgba(225, 238, 255, 0.45)) drop-shadow(0 10px 18px rgba(10, 16, 26, 0.35));
+  }
+  50% {
+    rotate: 5deg;
+    filter: drop-shadow(0 0 26px rgba(235, 245, 255, 0.85)) drop-shadow(0 10px 18px rgba(10, 16, 26, 0.35));
+  }
+}
+
+.resultCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 2cqh, 16px);
+  width: 100%;
+  padding: clamp(20px, 3cqh, 24px);
+}
+
+/* 標題：語氣沉重，冷白色、字距拉開 */
+.resultTitle {
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: clamp(18px, 2.7cqh, 21px);
+  font-weight: 500;
+  line-height: 1.6;
+  letter-spacing: 0.1em;
+  text-align: center;
+  text-wrap: balance;
+  color: #eef4ff;
+  text-shadow: 0 0 14px rgba(220, 235, 255, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.resultText {
+  margin: 0;
+  font-size: clamp(14px, 2cqh, 15px);
+  line-height: 1.9;
+  letter-spacing: 0.03em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* 線索框：左邊改成暗紅色 */
+.clue {
+  border-left-color: rgba(239, 68, 68, 0.55);
+  background: rgba(239, 68, 68, 0.06);
+}
+
+.homeButton {
+  margin-top: auto;
+}
