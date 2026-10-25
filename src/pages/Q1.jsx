@@ -145,8 +145,7 @@ function Success({ active, onSolved, onBack }) {
       <article className={`${styles.resultCard} ${quiz.glass} ${quiz.rise}`} style={{ '--delay': '0.25s' }}>
         <h2 className={styles.resultTitle}>答對了！</h2>
         <p className={styles.resultText}>
-          安徒生銅像正靜靜地望向對面的「蒂沃利樂園」（這可是全世界現存第二古老的主題樂園呢！）。順帶一提，這位童話大師誕生於有「丹麥花園」美稱的歐登塞喔～
-        </p>
+          安徒生銅像正靜靜地望向對面的 Tivoli Gardens ─ 這是全世界現存第二古老的主題樂園呢！
       </article>
 
       <button
