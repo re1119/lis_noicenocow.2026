@@ -21,7 +21,7 @@ export const SPRITES = [
     name: '史力奇',
     lockedImg: 'images/snufkin-locked.png',
     unlockedImg: 'images/snufkin-unlocked.png',
-    quiz: null,
+    quiz: 'Q2',
   },
   {
     id: 'little-my',

@@ -4,7 +4,8 @@ export const SECTION_POSITIONS = [
   0, // 第 1 頁：開場首頁       #/
   20, // 第 2 頁：進度頁        #/menu
   40, // 第 3 頁：第一關 Q1     #/q1/intro、#/q1/question、#/q1/success
-  // 之後的關卡照順序加：60, 80
+  60, // 第 4 頁：第二關 Q2     #/q2/intro、#/q2/question、#/q2/success
+  // 之後的關卡照順序加：80
 ]
 
 // 總共有幾頁
@@ -17,6 +18,7 @@ export const SWIPE_PAGE_COUNT = 2
 // 網址 → 第幾頁
 export function sectionOf(path) {
   if (path.startsWith('/q1')) return 2
+  if (path.startsWith('/q2')) return 3
   if (path === '/menu') return 1
   return 0
 }

@@ -3,6 +3,7 @@ import Scenery from './components/Scenery.jsx'
 import Home from './pages/Home.jsx'
 import Menu from './pages/Menu.jsx'
 import Q1 from './pages/Q1.jsx'
+import Q2 from './pages/Q2.jsx'
 import { SECTION_PATHS, SECTION_POSITIONS, SWIPE_PAGE_COUNT, sectionOf } from './data/scenes.js'
 import { useHashPath } from './hooks/useHashPath.js'
 import { isSolved, useUnlocked } from './hooks/useUnlocked.js'
@@ -74,17 +75,19 @@ export default function App() {
   }, [step])
 
   // 在進度頁點精靈：答對過就直接看通關回顧，沒答過就從引導頁開始
+  // quiz 是 'Q1'、'Q2'…，網址用小寫 /q1、/q2
   const openQuiz = useCallback(
     (quiz) => {
-      if (quiz !== 'Q1') return
-      navigate(isSolved('Q1') ? '/q1/success' : '/q1/intro')
+      const base = `/${quiz.toLowerCase()}`
+      navigate(isSolved(quiz) ? `${base}/success` : `${base}/intro`)
     },
     [navigate],
   )
 
-  // 第一關答對：記錄並解鎖阿瑪卡仙子
+  // 答對：記錄並解鎖對應的精靈
   const { solve } = progress
   const solveQ1 = useCallback(() => solve('Q1', 'amaka'), [solve])
+  const solveQ2 = useCallback(() => solve('Q2', 'snufkin'), [solve])
 
   return (
     <div
@@ -111,6 +114,7 @@ export default function App() {
         <Home active={activeIndex === 0} onStart={() => goTo(1)} />
         <Menu active={activeIndex === 1} progress={progress} onOpenQuiz={openQuiz} />
         <Q1 path={path} active={activeIndex === 2} navigate={navigate} onSolved={solveQ1} />
+        <Q2 path={path} active={activeIndex === 3} navigate={navigate} onSolved={solveQ2} />
       </main>
     </div>
   )
