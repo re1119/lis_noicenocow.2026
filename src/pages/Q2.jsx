@@ -191,7 +191,7 @@ function Success({ active, onSolved, onDone }) {
               </span>
             </h2>
             <p className={styles.faceText}>
-              亞美放棄後，由剩下的競爭者中點數最高的史力奇遞補！不過...他看了看這棟公寓，搔搔頭說：「我好像還是比較喜歡睡我的帳篷。」
+              亞美放棄後，由點數最高的史力奇遞補！不過...他看了看這棟公寓，搔搔頭說：「我好像還是比較喜歡睡我的帳篷。」
               <i className={`iconoir-bonfire ${styles.inlineIcon}`} aria-hidden="true" />
             </p>
             <p className={quiz.highlight}>
@@ -209,7 +209,7 @@ function Success({ active, onSolved, onDone }) {
           {/* 反面：反思題 */}
           <article className={`${styles.face} ${styles.back}`} inert={!isFlipped} aria-hidden={!isFlipped}>
             <h2 className={styles.faceTitle}>想一想...</h2>
-            <p className={styles.faceText}>如果台灣也採用這種「排隊累積點數」的公共住宅制度，你會想排隊嗎？</p>
+            <p className={styles.faceText}>如果臺灣也採用這種「排隊累積點數」的公共住宅制度，你會想排隊嗎？</p>
             <div className={styles.reflectOptions}>
               {[
                 { id: 'A', text: '會，感覺很公平！' },
