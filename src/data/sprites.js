@@ -14,7 +14,7 @@ export const SPRITES = [
     name: '嚕嚕米',
     lockedImg: 'images/moomin-locked.png',
     unlockedImg: 'images/moomin-unlocked.png',
-    quiz: null,
+    quiz: 'Q3',
   },
   {
     id: 'snufkin',

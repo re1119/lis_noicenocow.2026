@@ -313,6 +313,30 @@
 
 /* ============ 通關頁的共用零件 ============ */
 
+/* 重點區塊：左側粗白邊（知識小卡） */
+.highlight {
+  display: flex;
+  gap: 10px;
+  margin: 0;
+  padding: 12px 14px;
+  border-left: 4px solid rgba(255, 255, 255, 0.5);
+  border-radius: 0 12px 12px 0;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.highlight i {
+  flex: none;
+  margin-top: 3px;
+  font-size: 18px;
+}
+
+.highlight strong {
+  font-weight: 500;
+  color: #fff3d6;
+}
+
 /* 暖金色柔光：從精靈的位置往外暈開 */
 .warmGlow {
   position: absolute;

@@ -4,17 +4,19 @@ import quiz from '../styles/quiz.module.css'
 // 換畫面時，舊畫面淡出要多久
 const FADE_MS = 400
 
-// 網址 → 關卡裡的哪個畫面（intro 引導／question 作答／success 通關）
+// 網址 → 關卡裡的哪個畫面（intro 引導／question 作答或遊戲／success 通關）
+// 作答頁的網址可能是 /question（Q1、Q2）或 /game（Q3），都算 'question'
 function stepOf(path) {
-  if (path.endsWith('/question')) return 'question'
+  if (path.endsWith('/question') || path.endsWith('/game')) return 'question'
   if (path.endsWith('/success')) return 'success'
   return 'intro'
 }
 
 // 每一關共用的「舞台」：負責依網址切換畫面、淡入淡出、重播進場動畫
 // base：這一關的網址開頭，例如 '/q1'
+// playPath：作答頁的網址結尾，預設 'question'，Q3 是 'game'
 // renderStep(step, tools)：要顯示哪個畫面由各關卡自己決定
-export default function QuizStage({ base, label, path, active, navigate, renderStep }) {
+export default function QuizStage({ base, playPath = 'question', label, path, active, navigate, renderStep }) {
   const step = stepOf(path)
 
   // shown：畫面上正在顯示的步驟。網址換了之後，舊畫面先淡出，再換成新的
@@ -44,7 +46,7 @@ export default function QuizStage({ base, label, path, active, navigate, renderS
   }, [fading, step])
 
   // 用 useCallback 固定住這些函式，子畫面裡的計時器才不會被重設
-  const goQuestion = useCallback(() => navigate(`${base}/question`, { replace: true }), [navigate, base])
+  const goQuestion = useCallback(() => navigate(`${base}/${playPath}`, { replace: true }), [navigate, base, playPath])
   const goSuccess = useCallback(() => navigate(`${base}/success`, { replace: true }), [navigate, base])
   const goMenu = useCallback(() => navigate('/menu'), [navigate])
 

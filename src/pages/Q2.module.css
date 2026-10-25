@@ -271,30 +271,6 @@
   color: rgb(var(--color-glow));
 }
 
-/* 重點區塊：左側粗白邊 */
-.highlight {
-  display: flex;
-  gap: 10px;
-  margin: 0;
-  padding: 12px 14px;
-  border-left: 4px solid rgba(255, 255, 255, 0.5);
-  border-radius: 0 12px 12px 0;
-  background: rgba(255, 255, 255, 0.06);
-  font-size: 14px;
-  line-height: 1.75;
-}
-
-.highlight i {
-  flex: none;
-  margin-top: 3px;
-  font-size: 18px;
-}
-
-.highlight strong {
-  font-weight: 500;
-  color: #fff3d6;
-}
-
 /* 翻面按鈕：靠右的白框膠囊 */
 .flipButton {
   align-self: flex-end;

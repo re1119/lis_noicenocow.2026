@@ -26,6 +26,7 @@ push 到 main 後約 1–2 分鐘，GitHub Actions 會自動 build 並更新網�
 - `src/pages/Menu.jsx`：第 2 頁，進度頁 `#/menu`（含解鎖登場動畫）
 - `src/pages/Q1.jsx`：第 3 頁，第一關 `#/q1/intro` → `#/q1/question` → `#/q1/success`
 - `src/pages/Q2.jsx`：第 4 頁，第二關 `#/q2/intro` → `#/q2/question` → `#/q2/success`（3D 翻轉卡片＋反思題）
+- `src/pages/Q3.jsx`：第 5 頁，第三關 `#/q3/intro` → `#/q3/game` → `#/q3/success`（framer-motion 拖曳收集）
 - `src/components/QuizStage.jsx`：每一關共用的換畫面、淡入淡出邏輯
 - `src/components/QuizIntro.jsx`、`SuccessFigure.jsx`：共用的引導頁、通關頁精靈＋星光
 - `src/styles/quiz.module.css`：每一關共用的動畫、標題、毛玻璃、提示樣式

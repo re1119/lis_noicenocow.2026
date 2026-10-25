@@ -194,7 +194,7 @@ function Success({ active, onSolved, onDone }) {
               亞美放棄後，由剩下的競爭者中點數最高的史力奇遞補！不過...他看了看這棟公寓，搔搔頭說：「我好像還是比較喜歡睡我的帳篷。」
               <i className={`iconoir-bonfire ${styles.inlineIcon}`} aria-hidden="true" />
             </p>
-            <p className={styles.highlight}>
+            <p className={quiz.highlight}>
               <i className="iconoir-home-simple-door" aria-hidden="true" />
               <span>
                 <strong>瑞典居住理念：</strong>居住是人民的必需品，不是炒作致富的商品。

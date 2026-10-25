@@ -10,6 +10,7 @@
     "fonts": "node scripts/subset-fonts.mjs"
   },
   "dependencies": {
+    "framer-motion": "^14.6.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },
