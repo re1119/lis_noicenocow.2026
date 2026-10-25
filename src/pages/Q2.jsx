@@ -13,12 +13,12 @@ const CORRECT_DELAY_MS = 1000
 // 反思題作答後，等多久回到進度頁
 const REFLECT_DELAY_MS = 3000
 
-// 四位候選人：點數、頭像，以及選錯時的提示
-const CANDIDATES = [
-  { id: 'moomin', name: '嚕嚕米', points: 820, img: 'images/moomin-unlocked.png', wrong: '點數不夠喔！' },
-  { id: 'little-my', name: '亞美', points: 1500, img: 'images/little-my-unlocked.png', wrong: '她已經決定去旅行，放棄囉！' },
-  { id: 'snufkin', name: '史力奇', points: 1200, img: 'images/snufkin-unlocked.png', correct: true },
-  { id: 'amaka', name: '阿瑪卡仙子', points: 300, img: 'images/amaka-unlocked.png', wrong: '點數不夠喔！' },
+// 四個選項：B 是正解
+const OPTIONS = [
+  { id: 'A', text: '這間房子每個月的租金是 1500 克朗' },
+  { id: 'B', text: '目前登記租屋的競爭者中，最高分是 1500 點', correct: true },
+  { id: 'C', text: '必須在網站上註冊滿 1500 天才能獲得抽籤資格' },
+  { id: 'D', text: '只要支付 1500 點的手續費就能直接入住' },
 ]
 
 // 第二關：引導 → 作答 → 通關＋反思（換畫面的邏輯在 QuizStage）
@@ -50,10 +50,10 @@ export default function Q2({ path, active, navigate, onSolved }) {
 
 /* ============ 問題頁 ============ */
 function Question({ onBack, onCorrect }) {
-  // results：每個名字按鈕目前是 'correct'、'wrong' 還是還沒點
+  // results：每個選項目前是 'correct'、'wrong' 還是還沒點
   const [results, setResults] = useState({})
+  // shake.key：每點一次錯的就 +1，讓震動動畫可以重複播放
   const [shake, setShake] = useState({ id: null, key: 0 })
-  const [toast, showToast] = useToast(1800)
   const solved = Object.values(results).includes('correct')
 
   // 答對後等 1 秒再跳頁
@@ -63,13 +63,10 @@ function Question({ onBack, onCorrect }) {
     return () => clearTimeout(timer)
   }, [solved, onCorrect])
 
-  const choose = (c) => {
+  const choose = (o) => {
     if (solved) return
-    setResults((r) => ({ ...r, [c.id]: c.correct ? 'correct' : 'wrong' }))
-    if (!c.correct) {
-      setShake((s) => ({ id: c.id, key: s.key + 1 }))
-      showToast(c.wrong)
-    }
+    setResults((r) => ({ ...r, [o.id]: o.correct ? 'correct' : 'wrong' }))
+    if (!o.correct) setShake((s) => ({ id: o.id, key: s.key + 1 }))
   }
 
   return (
@@ -86,59 +83,49 @@ function Question({ onBack, onCorrect }) {
         </p>
       </header>
 
-      {/* 情境圖：原圖的黑底已預先轉成透明（效果等同 screen 混合），公寓像浮在冰原上 */}
-      <img
-        className={`${styles.house} ${quiz.rise}`}
-        style={{ '--delay': '0.1s' }}
-        src={asset('images/q2-public-housing.png')}
-        alt="一棟紅磚四層公寓，窗戶透出溫暖的燈光"
-      />
+      {/* 情境圖：去背的公寓，背後一圈暖光；右下角疊一個像租屋網的點數標籤
+          houseArea 會吃掉畫面剩下的高度，圖片在裡面等比例放到最大 */}
+      <div className={`${styles.houseArea} ${quiz.rise}`} style={{ '--delay': '0.1s' }}>
+        <figure className={styles.houseFrame}>
+          <img
+            className={styles.house}
+            src={asset('images/q2-public-housing.png')}
+            alt="一棟紅磚四層公寓，窗戶透出溫暖的燈光"
+          />
+          <figcaption className={styles.listingTag}>
+            <i className="iconoir-map-pin" aria-hidden="true" />
+            1500 poäng
+          </figcaption>
+        </figure>
+      </div>
 
-      {/* 候選人小卡：頭像、名字、排隊點數 */}
-      <ul className={`${styles.candidates} ${quiz.rise}`} style={{ '--delay': '0.2s' }} aria-label="候選人與排隊點數">
-        {CANDIDATES.map((c) => (
-          <li key={c.id} className={styles.candidate}>
-            <span className={styles.avatar}>
-              <img src={asset(c.img)} alt="" />
-            </span>
-            <span className={styles.candidateText}>
-              <span className={styles.candidateName}>{c.name}</span>
-              <span className={styles.points}>
-                <strong>{c.points}</strong> 點
-              </span>
-            </span>
-          </li>
-        ))}
-      </ul>
-
-      {/* 作答區：題目＋四個名字按鈕 */}
-      <div className={`${styles.answerArea} ${quiz.glass} ${quiz.rise}`} style={{ '--delay': '0.3s' }}>
-        <p className={styles.prompt}>
-          有一間溫馨的社會住宅釋出！點數最高的亞美卻臨時決定去出國旅行。根據瑞典「點數排隊制」，鑰匙最後會交給誰呢？
+      {/* 作答區：題目＋四個垂直排列的選項 */}
+      <div className={`${styles.answerArea} ${quiz.glass} ${quiz.rise}`} style={{ '--delay': '0.25s' }}>
+        <p className={styles.prompt} id="q2-prompt">
+          史力奇在國營租屋網 Stångåstaden 看到這間心儀的公寓，網頁標籤上寫著「1500 poäng（點）」。請問這個數字代表什麼意思？
         </p>
-        <div className={styles.answers}>
-          {CANDIDATES.map((c) => {
-            const result = results[c.id]
-            const isShaking = shake.id === c.id
+        <div className={styles.answers} role="group" aria-labelledby="q2-prompt">
+          {OPTIONS.map((o) => {
+            const result = results[o.id]
+            const isShaking = shake.id === o.id
             return (
               <button
-                key={isShaking ? `${c.id}-${shake.key}` : c.id}
+                key={isShaking ? `${o.id}-${shake.key}` : o.id}
                 type="button"
-                className={`${styles.answer} ${result ? styles[result] : ''} ${isShaking ? quiz.shake : ''}`}
-                onClick={() => choose(c)}
+                className={`${styles.answer} ${result ? styles[result] : ''} ${solved && !result ? styles.dimmed : ''} ${isShaking ? quiz.shake : ''}`}
+                onClick={() => choose(o)}
                 disabled={solved}
-                aria-label={`${c.name}${result === 'wrong' ? '，答錯了' : ''}${result === 'correct' ? '，答對了' : ''}`}
+                aria-label={`選項 ${o.id}：${o.text}${result === 'wrong' ? '，答錯了' : ''}${result === 'correct' ? '，答對了' : ''}`}
               >
-                {c.name}
+                <span className={styles.answerKey} aria-hidden="true">
+                  {o.id}
+                </span>
+                <span>{o.text}</span>
               </button>
             )
           })}
         </div>
       </div>
-
-      <p className={`${quiz.toast} ${toast ? quiz.toastShow : ''}`} role="status">
-        {toast}
-      </p>
     </div>
   )
 }
@@ -183,21 +170,18 @@ function Success({ active, onSolved, onDone }) {
         <div className={`${styles.flipCard} ${isFlipped ? styles.flipped : ''}`}>
           {/* 正面：通關故事。翻到反面時用 inert 讓鍵盤和報讀器跳過 */}
           <article className={`${styles.face} ${styles.front}`} inert={isFlipped} aria-hidden={isFlipped}>
-            <h2 className={`${styles.faceTitle} ${styles.twoLine}`}>
-              <span className={styles.titleCheer}>答對了！</span>
-              <span>
-                史力奇獲得租屋權
-                <i className="iconoir-sparks" aria-hidden="true" />
-              </span>
+            <h2 className={styles.faceTitle}>
+              <span className={styles.titleCheer}>答對了</span>
+              <i className="iconoir-sparks" aria-hidden="true" />
             </h2>
             <p className={styles.faceText}>
-              亞美放棄後，由點數最高的史力奇遞補！不過...他看了看這棟公寓，搔搔頭說：「我好像還是比較喜歡睡我的帳篷。」
+              Stångåstaden 網頁上的分數代表「目前登記者的最高點數」。由點數多寡，決定優先順序，史力奇如果點數不夠，就只能摸摸鼻子繼續睡帳篷囉。
               <i className={`iconoir-bonfire ${styles.inlineIcon}`} aria-hidden="true" />
             </p>
             <p className={quiz.highlight}>
               <i className="iconoir-home-simple-door" aria-hidden="true" />
               <span>
-                <strong>瑞典居住理念：</strong>居住是人民的必需品，不是炒作致富的商品。
+                <strong>瑞典居住理念：</strong>居住是人民的必需品，不是炒作、買賣致富的商品！
               </span>
             </p>
             <button type="button" className={styles.flipButton} onClick={() => setIsFlipped(true)}>
