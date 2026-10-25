@@ -146,6 +146,7 @@ function Success({ active, onSolved, onBack }) {
         <h2 className={styles.resultTitle}>答對了！</h2>
         <p className={styles.resultText}>
           安徒生銅像正靜靜地望向對面的 Tivoli Gardens ─ 這是全世界現存第二古老的主題樂園呢！
+        </p>
       </article>
 
       <button
