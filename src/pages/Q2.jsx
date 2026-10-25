@@ -15,10 +15,10 @@ const REFLECT_DELAY_MS = 3000
 
 // 四個選項：B 是正解
 const OPTIONS = [
-  { id: 'A', text: '這間房子每個月的租金是 1500 克朗' },
-  { id: 'B', text: '目前登記租屋的競爭者中，最高分是 1500 點', correct: true },
-  { id: 'C', text: '必須在網站上註冊滿 1500 天才能獲得抽籤資格' },
-  { id: 'D', text: '只要支付 1500 點的手續費就能直接入住' },
+  { id: 'A', text: '每月租金為 1500 克朗' },
+  { id: 'B', text: '目前登記租屋者的最高點數', correct: true },
+  { id: 'C', text: '需註冊滿 1500 天才有抽籤資格' },
+  { id: 'D', text: '支付 1500 點即可直接入住' },
 ]
 
 // 第二關：引導 → 作答 → 通關＋反思（換畫面的邏輯在 QuizStage）
@@ -92,6 +92,14 @@ function Question({ onBack, onCorrect }) {
             src={asset('images/q2-public-housing.png')}
             alt="一棟紅磚四層公寓，窗戶透出溫暖的燈光"
           />
+          {/* 史力奇站在公寓左下角的雪地上，抬頭看著這棟房子 */}
+          <span className={styles.snufkin}>
+            <img
+              className={quiz.floating}
+              src={asset('images/snufkin-unlocked.png')}
+              alt="史力奇站在雪地裡，看著這棟公寓"
+            />
+          </span>
           <figcaption className={styles.listingTag}>
             <i className="iconoir-map-pin" aria-hidden="true" />
             1500 poäng
@@ -120,7 +128,7 @@ function Question({ onBack, onCorrect }) {
                 <span className={styles.answerKey} aria-hidden="true">
                   {o.id}
                 </span>
-                <span>{o.text}</span>
+                <span className={styles.answerText}>{o.text}</span>
               </button>
             )
           })}

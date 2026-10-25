@@ -36,20 +36,53 @@
   margin: 0;
 }
 
-/* 背後一圈暖黃色光暈，像窗戶的燈光透到雪地上 */
+/* 背後一大圈暖黃色光暈，把公寓和史力奇一起包起來，像窗戶的燈光透到雪地上 */
 .houseFrame::before {
   content: '';
   position: absolute;
-  inset: 8% 10% 0;
+  inset: 0 -6% -8% -12%;
   border-radius: 50%;
   background: radial-gradient(
-    ellipse at 50% 60%,
-    rgba(var(--color-glow), 0.45) 0%,
-    rgba(var(--color-glow), 0.15) 45%,
+    ellipse at 45% 60%,
+    rgba(var(--color-glow), 0.5) 0%,
+    rgba(var(--color-glow), 0.2) 42%,
     rgba(var(--color-glow), 0) 70%
   );
-  filter: blur(8px);
+  filter: blur(10px);
   animation: houseGlow 4s ease-in-out infinite;
+}
+
+/* 腳下一片暖色的光，像燈光灑在雪地上，讓房子和史力奇站在同一塊地面 */
+.houseFrame::after {
+  content: '';
+  position: absolute;
+  left: 6%;
+  right: 12%;
+  bottom: 4%;
+  height: 16%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(255, 220, 160, 0.55) 0%, rgba(255, 220, 160, 0) 70%);
+  filter: blur(6px);
+  pointer-events: none;
+}
+
+/* 史力奇：站在公寓左下角，和公寓重疊一點，跟著公寓圖一起縮放
+   （公寓圖左右各有約 23% 的透明留白，房子本體從 23% 開始，所以 left 設 11% 才會碰到房子） */
+.snufkin {
+  position: absolute;
+  z-index: 2;
+  left: 11%;
+  bottom: 6%;
+  height: 54%;
+  aspect-ratio: 224 / 480;
+}
+
+.snufkin img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* 外面一圈淡淡的暖光，像被屋裡透出來的燈照著 */
+  filter: drop-shadow(0 0 8px rgba(var(--color-glow), 0.6)) drop-shadow(0 6px 8px rgba(20, 30, 45, 0.3));
 }
 
 @keyframes houseGlow {
@@ -64,6 +97,7 @@
 
 .house {
   position: relative;
+  z-index: 1;
   display: block;
   width: 100%;
   height: 100%;
@@ -75,6 +109,7 @@
 /* 租屋網的點數標籤：白色小膠囊＋紅色地圖釘 */
 .listingTag {
   position: absolute;
+  z-index: 3;
   right: 4%;
   bottom: 10%;
   display: inline-flex;
@@ -149,7 +184,6 @@
   line-height: 1.5;
   letter-spacing: 0.03em;
   text-align: left;
-  text-wrap: balance; /* 折成兩行時兩行長度平均，不會只剩一個字掉下去 */
   cursor: pointer;
   transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, opacity 0.4s ease,
     scale 0.12s ease;
@@ -168,6 +202,14 @@
 
 .answer:disabled {
   cursor: default;
+}
+
+/* 選項文字：一律單行；萬一螢幕真的太窄，結尾顯示「…」而不是折行 */
+.answerText {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 /* 選項代號：小圓圈 */
@@ -207,11 +249,9 @@
   }
 
   .answer {
-    min-height: 42px;
+    min-height: 44px;
     padding-top: 5px;
     padding-bottom: 5px;
-    font-size: 13.5px;
-    line-height: 1.45;
   }
 
   .listingTag {
