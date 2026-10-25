@@ -1,0 +1,295 @@
+/* ============================================
+   掉落接物遊戲
+   遊戲區鋪滿整個畫面，標題疊在上面；罐子貼齊底部
+   ============================================ */
+
+.game {
+  position: relative;
+  height: 100%;
+}
+
+/* ---------- 遊戲區 ---------- */
+.area {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  /* 手指在遊戲區滑動時，不要讓瀏覽器拿去捲動或縮放畫面 */
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* 掉落物：位置由程式直接改 transform（translate3d 讓手機用 GPU 處理，比較順） */
+.falling {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 84px;
+  height: 84px;
+  will-change: transform;
+  pointer-events: none;
+}
+
+.falling img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 10px rgba(20, 30, 45, 0.35));
+}
+
+/* ---------- 玻璃罐 ---------- */
+/* 寬度約畫面 40%，但螢幕矮的時候改用高度限制，不會太大 */
+.catcher {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(clamp(12px, 2.5cqh, 28px) + env(safe-area-inset-bottom));
+  width: min(40%, calc(30cqh * 302 / 520));
+  aspect-ratio: 302 / 520;
+  margin: 0 auto;
+  cursor: grab;
+  touch-action: none;
+}
+
+.catcher:active {
+  cursor: grabbing;
+}
+
+.jarBody {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.jar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 10px 18px rgba(20, 30, 45, 0.3));
+  transition: filter 1s ease;
+}
+
+/* 罐子後面的暖黃光：opacity 由程式控制（接得越多越亮） */
+.jarGlow {
+  position: absolute;
+  left: 50%;
+  top: 60%;
+  width: 210%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 236, 170, 0.95) 0%,
+    rgba(var(--color-glow), 0.7) 25%,
+    rgba(var(--color-glow), 0.25) 50%,
+    rgba(var(--color-glow), 0) 70%
+  );
+  transition: opacity 0.5s ease, scale 1s ease;
+  pointer-events: none;
+}
+
+/* 接到東西時閃一下：暖光（幸福）或冷藍光（壓力） */
+.jarFlash {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 170%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: flash 0.7s ease-out both;
+}
+
+.warm {
+  background: radial-gradient(circle, rgba(255, 240, 190, 0.95) 0%, rgba(var(--color-glow), 0.55) 35%, transparent 70%);
+}
+
+.cold {
+  background: radial-gradient(circle, rgba(200, 230, 255, 0.95) 0%, rgba(110, 170, 255, 0.6) 35%, transparent 70%);
+}
+
+@keyframes flash {
+  0% {
+    opacity: 0;
+    scale: 0.6;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    scale: 1.2;
+  }
+}
+
+/* 罐子裡的物件：縮小、從罐底往上堆（wrap-reverse = 新的一排疊在上面） */
+.contents {
+  position: absolute;
+  left: 16%;
+  right: 16%;
+  bottom: 7%;
+  display: flex;
+  flex-wrap: wrap-reverse;
+  justify-content: center;
+  align-content: flex-start;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.thumb {
+  width: 30%;
+  aspect-ratio: 1;
+  object-fit: contain;
+  animation: dropIn 0.45s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+}
+
+@keyframes dropIn {
+  from {
+    opacity: 0;
+    translate: 0 -40px;
+    scale: 0.4;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+}
+
+/* 收集滿：光暈放大脈動、罐子透出極暖的光並緩慢漂浮 */
+.catcherWon .jarGlow {
+  scale: 1.35;
+  animation: glowPulse 1.4s ease-in-out infinite;
+}
+
+.catcherWon .jar {
+  filter: drop-shadow(0 0 18px rgba(var(--color-glow), 0.95)) drop-shadow(0 0 44px rgba(255, 236, 170, 0.75));
+}
+
+.catcherWon .jarBody {
+  animation: jarFloat 2.4s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes jarFloat {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -8px;
+  }
+}
+
+/* ---------- 頂部資訊（疊在遊戲區上面，不擋住手指操作） ---------- */
+.top {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(6px, 1.2cqh, 12px);
+  padding: calc(clamp(40px, 7.5cqh, 76px) + env(safe-area-inset-top)) var(--space-m) 0;
+  pointer-events: none;
+}
+
+.top button {
+  pointer-events: auto;
+}
+
+/* 進度：小小的毛玻璃膠囊 */
+.progress {
+  margin: 0;
+  padding: 4px 16px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-pill);
+  background: var(--glass-dark-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.progress strong {
+  font-size: 17px;
+  font-weight: 500;
+  color: #ffe2a3;
+}
+
+/* ---------- 3-2-1 倒數遮罩 ---------- */
+.countdown {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  background: rgba(10, 16, 26, 0.55);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  animation: overlayIn 0.4s ease-out both;
+}
+
+@keyframes overlayIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 每個數字從大縮小、淡入 */
+.countNumber {
+  font-family: var(--font-title);
+  font-size: clamp(72px, 13cqh, 110px);
+  line-height: 1;
+  color: #fff7e6;
+  text-shadow: 0 0 24px rgba(var(--color-glow), 0.7), 0 2px 6px rgba(0, 0, 0, 0.4);
+  animation: countPop 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes countPop {
+  0% {
+    opacity: 0;
+    scale: 1.8;
+  }
+  30% {
+    opacity: 1;
+    scale: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    scale: 0.9;
+  }
+}
+
+.countTip {
+  margin: 0;
+  max-width: 16em;
+  font-size: 15px;
+  line-height: 1.7;
+  letter-spacing: 0.06em;
+  text-align: center;
+  opacity: 0.9;
+}
