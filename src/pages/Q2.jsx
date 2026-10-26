@@ -13,12 +13,13 @@ const CORRECT_DELAY_MS = 1000
 // 反思題作答後，等多久回到進度頁
 const REFLECT_DELAY_MS = 3000
 
-// 四個選項：B 是正解
+// 四個選項：C 是正解
 const OPTIONS = [
   { id: 'A', text: '每月租金為 1500 克朗' },
   { id: 'B', text: '支付 1500 點即可直接入住' },
   { id: 'C', text: '目前登記租屋者的最高點數', correct: true },
   { id: 'D', text: '需註冊滿 1500 天才有抽籤資格' },
+]
 
 // 第二關：引導 → 作答 → 通關＋反思（換畫面的邏輯在 QuizStage）
 export default function Q2({ path, active, navigate, onSolved }) {
