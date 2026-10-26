@@ -53,9 +53,11 @@ export default function Scenery({ isHome }) {
       {/* 1-1. 遠處的雪：細小、清楚、落得慢（首頁才有） */}
       <div className={`${styles.snow} ${styles.snowFar}`} />
 
-      {/* 2. 首頁巨字「牛」：在背景之上、牛之下，跟著背景一起滑走 */}
+      {/* 2. 首頁巨字「牛。」：接在首頁直書的「冰上沒有」後面
+             在背景之上、真牛之下 → 牛站在字前面；跟著背景一起滑走 */}
       <div className={styles.giant}>
-        <span className={styles.giantInner}>牛</span>
+        <span className={`${styles.giantGlyph} ${styles.ox}`}>牛</span>
+        <span className={`${styles.giantGlyph} ${styles.dot}`}>。</span>
       </div>
 
       {/* 3. 後層迷霧：從巨字前面飄過去，字像立在霧裡 */}

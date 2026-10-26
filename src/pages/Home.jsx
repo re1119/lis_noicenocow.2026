@@ -13,21 +13,26 @@ export default function Home({ active, onStart }) {
 
       {/* 文字層：會跟著滑鼠做一點點視差（比巨字更靠近我們，所以方向相反） */}
       <div className={styles.layer}>
-        {/* 左上角：一行展覽資訊，星號連到牛旁邊的註腳 */}
-        <p className={styles.meta}>
-          NO COW ON ICE<span className={styles.star}>*</span> — NTU LIS
+        {/* 左上角：瑞典諺語原文「冰上沒有牛」 */}
+        <p className={styles.proverb} lang="sv">
+          “Det är ingen ko på isen.”
         </p>
 
-        {/* 左側直書：主標題＋主題副標＋瑞典諺語原文（由右往左讀） */}
+        {/* 左側直書：標題只寫「冰上沒有」，由背景的巨字「牛」和「。」接下去
+            aria-label 讓螢幕報讀器唸出完整的一句 */}
         <div className={styles.titleColumn}>
-          <h1 className={styles.title}>冰上沒有牛。</h1>
+          <h1 className={styles.title} aria-label="冰上沒有牛。">
+            <span aria-hidden="true">冰上沒有</span>
+          </h1>
           <p className={styles.subtitle}>北歐書展・精靈尋寶</p>
-          <p className={styles.proverb} lang="sv">
-            Det är ingen ko på isen.
-          </p>
         </div>
 
-        {/* 註腳：細線拉到真牛頭上——「冰上沒有牛*（除了這頭）」 */}
+        {/* 沿著左邊緣直排的英文資訊，星號連到牛下方的註腳 */}
+        <p className={styles.sideMeta}>
+          NO COW ON ICE<span className={styles.star}>*</span> · NORDIC BOOK FAIR · NTU LIS
+        </p>
+
+        {/* 註腳：在牛的下方，細線往上指到牛腳——「冰上沒有牛*（除了這頭）」 */}
         <p className={styles.footnote}>
           <span className={styles.leader} aria-hidden="true" />
           *EXCEPT THIS ONE.

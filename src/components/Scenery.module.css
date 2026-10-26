@@ -102,18 +102,12 @@
   mask-image: linear-gradient(to bottom, #000 0%, #000 58%, transparent 84%);
 }
 
-/* 內層：字本身。大到畫面放不下、往右邊裁出去
+/* 「牛」和「。」共用：白色明朝體
    translate：跟著滑鼠的視差（--mx、--my 由 Scenery.jsx 寫入）
    scale：緩慢的呼吸；transform：進場動畫 —— 三種動作用不同屬性，不會互相蓋掉 */
-.giantInner {
+.giantGlyph {
   position: absolute;
-  /* 「牛」那一豎要剛好從真牛的身體後面穿過
-     背景圖跟著畫面「高度」縮放，所以牛身的中心在「畫面中線 + 8% 畫面高」；
-     那一豎在這個字裡大約 52.4% 的位置 → left = 牛身中心 − 0.524 × 字級 */
-  left: calc(50cqw + 8cqh - 0.524 * 60cqh);
-  top: 15cqh;
   font-family: var(--font-title);
-  font-size: 60cqh;
   font-weight: 500;
   line-height: 1;
   color: #ffffff;
@@ -126,6 +120,26 @@
   animation:
     giantIn 2.2s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both,
     giantBreathe 8s ease-in-out 2.4s infinite;
+}
+
+/* 「牛」：大到畫面放不下、往右邊裁出去
+   那一豎要從真牛的身體後面穿過。背景圖跟著畫面「高度」縮放，
+   所以牛身中心在「畫面中線 + 10% 畫面高」；那一豎在字裡約 52.4% 的位置
+   → left = 牛身中心 − 0.524 × 字級 */
+.ox {
+  left: calc(50cqw + 10cqh - 0.524 * 60cqh);
+  top: 15cqh;
+  font-size: 60cqh;
+}
+
+/* 「。」：圓圈在字框裡約 51.5%（橫）、48%（直）的位置，直徑約 1/3 字級
+   擺在牛頭左前方的霧裡：圓圈完整看得到，牛臉稍微壓到圓圈右緣，像牛在看這個句號
+   圓心目標：畫面中線 − 4% 畫面高、高度 64% 處 */
+.dot {
+  left: calc(50cqw - 4cqh - 0.515 * 34cqh);
+  top: calc(64cqh - 0.48 * 34cqh);
+  font-size: 34cqh;
+  animation-delay: 0.6s, 2.8s; /* 比「牛」晚一點浮現 */
 }
 
 /* 從霧裡浮現：由下往上、由模糊變清楚 */
