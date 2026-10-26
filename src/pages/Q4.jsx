@@ -25,12 +25,12 @@ const QUESTIONS = [
   },
   {
     note: 'images/q4-note-2.jpg',
-    lines: ['包裹上的郵戳，', '最常從哪裡寄出？'],
+    lines: ['包裹上的郵戳顯示，', '最常從哪裡寄出？'],
     options: [
       { id: 'A', text: '倫敦' },
-      { id: 'B', text: '斯德哥爾摩' },
-      { id: 'C', text: '巴黎' },
-      { id: 'D', text: '哥本哈根' },
+      { id: 'B', text: '莫斯科' },
+      { id: 'C', text: '哥本哈根' },
+      { id: 'D', text: '斯德哥爾摩' },
     ],
     answer: 'B',
   },
@@ -38,9 +38,9 @@ const QUESTIONS = [
     note: 'images/q4-note-3.jpg',
     lines: ['打開包裹後，', '裡面的信寫了什麼？'],
     options: [
-      { id: 'A', text: '兇手的線索' },
-      { id: 'B', text: '祝你生日快樂' },
-      { id: 'C', text: '沒有信，只有一朵花' },
+      { id: 'A', text: '爸爸，祝你生日快樂' },
+      { id: 'B', text: '沒有信，只有一朵花' },
+      { id: 'C', text: '如果我多一張船票，你會不會跟我一起走？' },
     ],
     answer: 'C',
   },
@@ -90,7 +90,7 @@ function Intro({ onStart }) {
       <div className={`${styles.mission} ${quiz.rise}`} style={{ '--delay': '0.9s' }}>
         <p className={`${styles.missionCard} ${quiz.glass}`}>
           <i className="iconoir-open-book" aria-hidden="true" />
-          請翻到《龍紋身的女孩》第 21-24 頁，然後回來辦案！
+          請翻到《龍紋身的女孩》第 21-24 頁，然後回來揭曉謎底！
         </p>
         <button type="button" className={`${styles.startButton} ${quiz.glowButton}`} onClick={onStart}>
           開始辦案
@@ -129,7 +129,7 @@ function Quiz({ onBack, onDone }) {
     if (solved) return
     const correct = option.id === q.answer
     setResult((r) => ({ id: option.id, correct, key: r.key + 1 }))
-    if (!correct) showToast('警探，再仔細看看書裡的線索！')
+    if (!correct) showToast('再仔細看看書裡的線索！')
   }
 
   return (
@@ -215,11 +215,13 @@ function Success({ active, onSolved, onBack }) {
         <p className={styles.resultText}>
           每年一朵壓花，整整 44 年從未間斷。
           <br />
-          但為什麼牆上的相框少了一格？為什麼收到花的老人哭了？
+          但為什麼牆上的相框少了一格？
+          <br />
+          為什麼收到花的老人哭了？
         </p>
         <p className={`${quiz.highlight} ${styles.clue}`}>
           <i className="iconoir-search" aria-hidden="true" />
-          <span>解答就藏在書裡。如果你也好奇真相，來讀讀看吧！</span>
+          <span>解答就藏在書裡。如果你也好奇真相，翻開書讀讀看吧！</span>
         </p>
       </article>
 
