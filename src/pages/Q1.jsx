@@ -145,7 +145,11 @@ function Success({ active, onSolved, onBack }) {
       <article className={`${styles.resultCard} ${quiz.glass} ${quiz.rise}`} style={{ '--delay': '0.25s' }}>
         <h2 className={styles.resultTitle}>答對了！</h2>
         <p className={styles.resultText}>
-          安徒生銅像正靜靜地望向對面的 Tivoli Gardens ─ 這是全世界現存第二古老的主題樂園呢！
+          安徒生銅像靜靜地望向對面的 Tivoli Gardens  
+          <br /> 
+          ─ 這是全世界現存第二古老的主題樂園呢！
+          <br /> 
+          說不定他看著看著，正在腦海裡偷偷構思下一個遊樂園童話呢！
         </p>
       </article>
 
