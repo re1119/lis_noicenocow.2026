@@ -1,12 +1,33 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { BG_IMAGE, COW, FIRST_SCENE_HEIGHT, LANTERN } from '../data/scenes.js'
 import styles from './Scenery.module.css'
+
+// 牛甩掉的雪花有幾片
+const SHED_COUNT = 26
+const rand = (min, max) => min + Math.random() * (max - min)
 
 // 背景場景：長圖本身不動畫，位置由翻頁決定（CSS 變數 --p，見 App.jsx）；
 // 燭火、霧是另外疊上去的 div，製造「活著」的感覺
 // 首頁海報：巨大的「牛」字夾在背景和去背的牛之間 → 真的牛站在字的前面
-// isHome：現在是不是在首頁（只有首頁要跟著滑鼠做視差）
-export default function Scenery({ isHome }) {
+// isHome：現在是不是在首頁（只有首頁要跟著滑鼠做視差、牛才發光）
+// cowShakes：牛被點了幾次，每次改變就抖一次、撒一把雪
+export default function Scenery({ isHome, cowShakes }) {
+  // 每抖一次，重新隨機產生一把雪花：從牛背上的某一點噴出去，往上一點再落下
+  const shed = useMemo(
+    () =>
+      Array.from({ length: SHED_COUNT }, () => ({
+        x: rand(18, 88), // 起點：牛的寬度百分比（牛背範圍）
+        y: rand(8, 34), // 起點：牛的高度百分比
+        dx: rand(-80, 80), // 往左右飛多遠（px）
+        up: rand(12, 42), // 先往上彈多高
+        fall: rand(60, 130), // 最後落到多低
+        size: rand(3, 7.5),
+        delay: rand(0, 0.25),
+        duration: rand(0.9, 1.5),
+      })),
+    [cowShakes],
+  )
+
   // 背景圖要畫多寬：讓第一段場景剛好一個螢幕高（cqh = 畫面高的 1%），
   // 但至少要和畫面一樣寬，不然兩側會露出空白
   const sceneWidthCqh = (BG_IMAGE.width / FIRST_SCENE_HEIGHT) * 100
@@ -50,6 +71,12 @@ export default function Scenery({ isHome }) {
         style={{ backgroundImage: `url(${import.meta.env.BASE_URL}${BG_IMAGE.src})` }}
       />
 
+      {/* 1-0. 霧雪補丁：蓋掉背景圖裡原本那頭牛（顏色取自牛四周的雪霧）
+               去背的牛一動，底下才不會露出第二頭牛；放在巨字下面，字仍然看得到 */}
+      <div className={styles.track}>
+        <div className={styles.cowPatch} />
+      </div>
+
       {/* 1-1. 遠處的雪：細小、清楚、落得慢（首頁才有） */}
       <div className={`${styles.snow} ${styles.snowFar}`} />
 
@@ -68,7 +95,38 @@ export default function Scenery({ isHome }) {
         <div className={styles.lantern} />
         {/* 長圖第一段和第二段的拼接線，用一條霧帶蓋住 */}
         <div className={styles.seam} />
-        <img className={styles.cow} src={`${import.meta.env.BASE_URL}${COW.src}`} alt="" />
+        {/* 去背的牛：外層定位、中層待機呼吸＋「可以點」的光暈、內層負責抖動 */}
+        <div className={styles.cowWrap}>
+          <div className={`${styles.cowIdle} ${isHome ? styles.cowHint : ''}`}>
+            {/* key 改變 → 重新建立元素 → 抖動動畫每次都從頭播 */}
+            <div key={cowShakes} className={cowShakes ? styles.cowShake : undefined}>
+              <img className={styles.cow} src={`${import.meta.env.BASE_URL}${COW.src}`} alt="" />
+            </div>
+          </div>
+
+          {/* 甩下來的雪花 */}
+          {cowShakes > 0 && (
+            <div key={`shed-${cowShakes}`} className={styles.shed}>
+              {shed.map((p, i) => (
+                <span
+                  key={i}
+                  className={styles.flake}
+                  style={{
+                    left: `${p.x}%`,
+                    top: `${p.y}%`,
+                    width: `${p.size}px`,
+                    height: `${p.size}px`,
+                    '--dx': `${p.dx}px`,
+                    '--up': `${p.up}px`,
+                    '--fall': `${p.fall}px`,
+                    animationDelay: `${p.delay}s`,
+                    animationDuration: `${p.duration}s`,
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* 5. 前層迷霧：從牛腳邊飄過 */}

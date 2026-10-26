@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Scenery from './components/Scenery.jsx'
 import Home from './pages/Home.jsx'
 import Menu from './pages/Menu.jsx'
@@ -24,6 +24,9 @@ export default function App() {
   const activeIndex = sectionOf(path)
   // 遊戲進度只在這裡讀一次，再分給各頁，大家看到的是同一份
   const progress = useUnlocked()
+  // 首頁的牛被點了幾次：首頁負責「接收點擊」，背景層的牛負責「抖動」，兩邊靠這個數字溝通
+  const [cowShakes, setCowShakes] = useState(0)
+  const shakeCow = useCallback(() => setCowShakes((n) => n + 1), [])
 
   // indexRef：同一個頁數的「備份」，讓事件處理器隨時讀到最新值
   const indexRef = useRef(activeIndex)
@@ -111,11 +114,11 @@ export default function App() {
       }}
     >
       {/* 背景：長圖、燭火、霧，跟著翻頁一起滑 */}
-      <Scenery isHome={activeIndex === 0} />
+      <Scenery isHome={activeIndex === 0} cowShakes={cowShakes} />
 
       {/* 前景：所有頁面上下疊在一起，整串用 transform 往上推 */}
       <main className={styles.slider}>
-        <Home active={activeIndex === 0} onStart={() => goTo(1)} />
+        <Home active={activeIndex === 0} onStart={() => goTo(1)} onCowTap={shakeCow} />
         <Menu active={activeIndex === 1} progress={progress} onOpenQuiz={openQuiz} />
         <Q1 path={path} active={activeIndex === 2} navigate={navigate} onSolved={solveQ1} />
         <Q2 path={path} active={activeIndex === 3} navigate={navigate} onSolved={solveQ2} />

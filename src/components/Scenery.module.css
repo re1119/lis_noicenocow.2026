@@ -223,15 +223,157 @@
   80%      { scale: 0.97; }
 }
 
-/* 去背的牛：精準疊在背景裡那頭牛的位置上，所以看起來沒變，
-   但它排在巨字「牛」的前面 → 牛站在字的前方，擋住部分筆畫 */
-.cow {
+/* ---------- 霧雪補丁：蓋掉背景圖裡原本那頭牛 ----------
+   顏色是從牛四周的雪霧量出來的平均色（約 186, 188, 189），中間不透明、邊緣漸漸透明
+   範圍（原圖像素）：中心 (507, 825)、寬 300、高 220，比牛大一圈 */
+.cowPatch {
+  position: absolute;
+  left: calc(var(--img-w) * 357 / 768);
+  top: calc(var(--img-w) * 715 / 768);
+  width: calc(var(--img-w) * 300 / 768);
+  height: calc(var(--img-w) * 220 / 768);
+  background: radial-gradient(
+    ellipse closest-side,
+    rgb(186, 188, 189) 72%,
+    rgba(186, 188, 189, 0) 100%
+  );
+}
+
+/* ---------- 去背的牛 ----------
+   位置精準對準背景裡那頭牛；排在巨字「牛」的前面 → 牛站在字的前方，擋住部分筆畫 */
+.cowWrap {
   position: absolute;
   left: calc(var(--img-w) * var(--cow-x));
   top: calc(var(--img-w) * var(--cow-y));
   width: calc(var(--img-w) * var(--cow-w));
-  height: auto;
+  aspect-ratio: 430 / 315;
   pointer-events: none;
+}
+
+.cow {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* 待機：以腳為支點，身體像呼吸一樣微微鼓起、輕輕上浮 */
+.cowIdle {
+  transform-origin: 55% 92%;
+  animation: cowBreathe 3.6s ease-in-out infinite;
+}
+
+@keyframes cowBreathe {
+  0%,
+  100% {
+    scale: 1 1;
+    translate: 0 0;
+  }
+  50% {
+    scale: 1.008 1.02;
+    translate: 0 -2px;
+  }
+}
+
+/* 「可以點」的提示：和全站其他可點的東西一樣，暖金色光暈像呼吸一樣亮暗 */
+.cowHint {
+  animation:
+    cowBreathe 3.6s ease-in-out infinite,
+    cowGlow 2.6s ease-in-out infinite;
+}
+
+@keyframes cowGlow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 2px rgba(var(--color-glow), 0.15));
+  }
+  50% {
+    filter: drop-shadow(0 0 10px rgba(var(--color-glow), 0.75));
+  }
+}
+
+/* ---------- 被點了：像濕掉的狗甩水 ----------
+   先往下蹲一點蓄力 → 身體快速左右扭（skewX 讓毛像在甩、rotate 讓重心晃）→ 幅度越來越小 → 回到原位
+   支點在腳底，所以腳幾乎不動、身體在甩 */
+.cowShake {
+  transform-origin: 55% 95%;
+  animation: cowShake 1s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes cowShake {
+  0% {
+    transform: none;
+  }
+  8% {
+    transform: scale(1.03, 0.95); /* 蹲低蓄力 */
+  }
+  16% {
+    transform: skewX(-9deg) rotate(-3deg) translateX(-4px);
+  }
+  24% {
+    transform: skewX(9deg) rotate(3deg) translateX(4px);
+  }
+  32% {
+    transform: skewX(-8deg) rotate(-2.6deg) translateX(-3.5px);
+  }
+  40% {
+    transform: skewX(7deg) rotate(2.2deg) translateX(3px);
+  }
+  48% {
+    transform: skewX(-5.5deg) rotate(-1.7deg) translateX(-2.5px);
+  }
+  56% {
+    transform: skewX(4.5deg) rotate(1.3deg) translateX(2px);
+  }
+  64% {
+    transform: skewX(-3deg) rotate(-0.9deg) translateX(-1.2px);
+  }
+  72% {
+    transform: skewX(2deg) rotate(0.5deg) translateX(0.8px);
+  }
+  82% {
+    transform: skewX(-0.8deg) scale(1.01, 0.99);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+/* ---------- 甩下來的雪花 ----------
+   每一片從牛背上的某一點出發：先往外、往上彈，再受重力落下、淡出
+   --dx、--up、--fall 由 Scenery.jsx 隨機給 */
+.shed {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.flake {
+  position: absolute;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.9);
+  opacity: 0;
+  animation-name: shedFlake;
+  animation-timing-function: cubic-bezier(0.25, 0.6, 0.45, 1);
+  animation-fill-mode: both;
+}
+
+@keyframes shedFlake {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.6);
+  }
+  10% {
+    opacity: 1;
+  }
+  35% {
+    opacity: 1;
+    transform: translate(calc(var(--dx) * 0.55), calc(var(--up) * -1)) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--fall)) scale(0.8);
+  }
 }
 
 /* 接縫霧帶：中心對準拼接線，上下漸漸透明 */

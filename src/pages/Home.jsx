@@ -1,10 +1,12 @@
 import styles from './Home.module.css'
 
 // 畫面一：開場首頁（第 1 頁），日本展覽海報風格
-// 主角是背景層的巨字「牛」和站在字前面的真牛（都在 Scenery.jsx），
-// 這裡只放少量文字，留出大片空白讓畫面呼吸
+// 主角是背景層的巨字「牛。」和站在字前面的真牛（都在 Scenery.jsx），
+// 這裡只放少量文字，用大小和透明度分出閱讀順序：
+//   1. 巨字「牛。」＋真牛（背景層）→ 2.「冰上沒有」→ 3. 展期、Start → 4. 諺語、英文資訊、註腳
 // active：現在是不是在這一頁；onStart：點 Start 時要做的事（翻到下一頁）
-export default function Home({ active, onStart }) {
+// onCowTap：點了牛（背景層的牛會抖一抖、撒下雪花）
+export default function Home({ active, onStart, onCowTap }) {
   return (
     // inert：不在畫面上時，鍵盤 Tab 和螢幕報讀器都跳過這一頁
     <section className={styles.home} inert={!active}>
@@ -18,24 +20,22 @@ export default function Home({ active, onStart }) {
           “Det är ingen ko på isen.”
         </p>
 
-        {/* 左側直書：標題只寫「冰上沒有」，由背景的巨字「牛」和「。」接下去
+        {/* 左側直書兩欄（由右往左讀）：
+            標題只寫「冰上沒有」，由背景的巨字「牛。」接下去；左邊一欄是側躺的英文資訊
             aria-label 讓螢幕報讀器唸出完整的一句 */}
         <div className={styles.titleColumn}>
           <h1 className={styles.title} aria-label="冰上沒有牛。">
             <span aria-hidden="true">冰上沒有</span>
           </h1>
-          <p className={styles.subtitle}>北歐書展・精靈尋寶</p>
+          <p className={styles.sideMeta}>
+            NO COW ON ICE<span className={styles.star}>*</span> · NORDIC BOOK FAIR · NTU LIS
+          </p>
         </div>
 
-        {/* 沿著左邊緣直排的英文資訊，星號連到牛下方的註腳 */}
-        <p className={styles.sideMeta}>
-          NO COW ON ICE<span className={styles.star}>*</span> · NORDIC BOOK FAIR · NTU LIS
-        </p>
-
-        {/* 註腳：在牛的下方，細線往上指到牛腳——「冰上沒有牛*（除了這頭）」 */}
+        {/* 註腳：在牛的下方，細線往上指到牛腳——「冰上沒有牛*（除了這頭）」，順便告訴大家牛可以點 */}
         <p className={styles.footnote}>
           <span className={styles.leader} aria-hidden="true" />
-          *EXCEPT THIS ONE.
+          *EXCEPT THIS ONE — TAP IT.
         </p>
 
         {/* 右下角：濃縮的英文展期 */}
@@ -49,6 +49,14 @@ export default function Home({ active, onStart }) {
           <p className={styles.year}>2026</p>
         </div>
       </div>
+
+      {/* 看不見的按鈕，剛好蓋在真牛上：點了牛就抖一抖、撒下雪花 */}
+      <button
+        type="button"
+        className={styles.cowTap}
+        onClick={onCowTap}
+        aria-label="點一下這頭牛，牠會抖掉身上的雪"
+      />
 
       {/* 右下角：極簡文字按鈕；magic-pulse 是全站共用的「點我」呼吸光暈（global.css） */}
       <button type="button" className={`${styles.start} magic-pulse`} onClick={onStart}>

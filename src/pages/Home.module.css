@@ -30,36 +30,58 @@
   transition: translate 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-/* ---------- 左上：瑞典諺語（橫排、斜體） ---------- */
+/* ---------- 左上：瑞典諺語（第 4 層：細節，橫排、斜體、半透明） ---------- */
 .proverb {
   position: absolute;
   top: calc(var(--edge) + env(safe-area-inset-top));
   left: var(--edge);
   margin: 0;
   font-family: var(--font-latin);
-  font-size: 12px;
+  font-size: 11px;
   font-style: italic;
   letter-spacing: 0.04em;
   white-space: nowrap;
-  color: var(--color-text);
+  color: rgba(255, 255, 255, 0.72);
   text-shadow: var(--shadow-text);
-  animation: fadeIn 1.2s ease-out 1s both;
+  animation: fadeIn 1.2s ease-out 1.6s both;
 }
 
-/* ---------- 左邊緣直排的英文資訊 ----------
-   英文在直書裡會側躺，像海報邊緣的書背文字 */
-.sideMeta {
+/* ---------- 左側直書兩欄：「冰上沒有」＋英文資訊 ---------- */
+.titleColumn {
   position: absolute;
-  top: 42cqh;
+  top: calc(clamp(72px, 11cqh, 104px) + env(safe-area-inset-top));
   left: var(--edge);
+  display: flex;
+  flex-direction: row-reverse; /* 直書由右往左讀：標題在最右 */
+  align-items: flex-start;
+  gap: 14px;
+}
+
+/* 第 2 層：標題。全白、比其他字都大，巨字之後第一個被讀到 */
+.title {
   margin: 0;
+  writing-mode: vertical-rl;
+  font-family: var(--font-title);
+  font-size: clamp(22px, 3.4cqh, 28px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.55em;
+  color: var(--color-text);
+  text-shadow: var(--shadow-text-strong);
+  animation: fadeIn 1.4s ease-out 1s both;
+}
+
+/* 第 4 層：英文資訊。側躺的小字、往下錯開兩格，像書背上的字 */
+.sideMeta {
+  margin: 4.6em 0 0;
   writing-mode: vertical-rl;
   font-family: var(--font-latin);
   font-size: 9px;
   font-weight: 500;
-  letter-spacing: 0.22em;
+  line-height: 1;
+  letter-spacing: 0.24em;
   white-space: nowrap;
-  color: var(--color-text);
+  color: rgba(255, 255, 255, 0.6);
   text-shadow: var(--shadow-text);
   animation: fadeIn 1.2s ease-out 1.8s both;
 }
@@ -67,42 +89,6 @@
 /* 星號：連到牛下方的註腳，暖色一點讓人想找它在哪 */
 .star {
   color: #ffd99a;
-}
-
-/* ---------- 左側直書：「冰上沒有」＋副標 ---------- */
-.titleColumn {
-  position: absolute;
-  top: calc(clamp(64px, 9cqh, 88px) + env(safe-area-inset-top));
-  left: var(--edge);
-  display: flex;
-  flex-direction: row-reverse; /* 直書由右往左讀：標題在最右 */
-  align-items: flex-start;
-  gap: 12px;
-  animation: fadeIn 1.4s ease-out 1.2s both;
-}
-
-.title {
-  margin: 0;
-  writing-mode: vertical-rl;
-  font-family: var(--font-title);
-  font-size: clamp(20px, 3cqh, 26px);
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: 0.55em;
-  color: var(--color-text);
-  text-shadow: var(--shadow-text-strong);
-}
-
-/* 主題副標：小一號、往下錯開一格，讓三欄不要齊頭 */
-.subtitle {
-  margin: 2.2em 0 0;
-  writing-mode: vertical-rl;
-  font-size: 11px;
-  line-height: 1;
-  letter-spacing: 0.4em;
-  color: var(--color-text);
-  opacity: 0.9;
-  text-shadow: var(--shadow-text);
 }
 
 /* ---------- 註腳：在牛的下方，細線往上指到牛腳 ----------
@@ -118,8 +104,25 @@
   font-weight: 500;
   letter-spacing: 0.22em;
   white-space: nowrap;
-  color: var(--color-ink);
+  color: rgba(47, 53, 64, 0.7); /* 第 4 層：深色墨水字，淡一點 */
   animation: fadeIn 1.2s ease-out 2.4s both;
+}
+
+/* ---------- 牛的點擊範圍：看不見，剛好蓋在真牛上 ----------
+   位置算法和背景層的牛一樣：背景圖寬 = max(畫面寬, 畫面高 × 768/1290)，
+   牛在原圖的 (402.7, 744.8)、寬 209.4（見 data/scenes.js 的 COW） */
+.cowTap {
+  --img-w: max(100cqw, 59.535cqh);
+  position: absolute;
+  left: calc(50cqw - var(--img-w) / 2 + var(--img-w) * 402.7 / 768);
+  top: calc(var(--img-w) * 744.8 / 768);
+  width: calc(var(--img-w) * 209.4 / 768);
+  aspect-ratio: 430 / 315;
+  padding: 0;
+  border: 0;
+  border-radius: 40%;
+  background: none;
+  cursor: pointer;
 }
 
 /* 細引線：從註腳往上拉到牛腳 */
@@ -173,7 +176,7 @@
   font-weight: 500;
   letter-spacing: var(--tracking-widest);
   margin-right: calc(var(--tracking-widest) * -1); /* 抵消最後一個字的字距，右邊才貼齊 */
-  opacity: 0.85;
+  opacity: 0.55; /* 第 4 層 */
 }
 
 /* ---------- 右下 Start：極簡文字＋細底線 ---------- */
@@ -193,7 +196,7 @@
   font-size: 11px;
   font-weight: 500;
   letter-spacing: var(--tracking-widest);
-  color: var(--color-text);
+  color: rgba(255, 255, 255, 0.9); /* 第 3 層 */
   text-shadow: var(--shadow-text);
   cursor: pointer;
 }
