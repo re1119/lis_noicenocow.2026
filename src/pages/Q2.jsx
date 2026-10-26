@@ -16,10 +16,9 @@ const REFLECT_DELAY_MS = 3000
 // 四個選項：B 是正解
 const OPTIONS = [
   { id: 'A', text: '每月租金為 1500 克朗' },
-  { id: 'B', text: '目前登記租屋者的最高點數', correct: true },
-  { id: 'C', text: '需註冊滿 1500 天才有抽籤資格' },
-  { id: 'D', text: '支付 1500 點即可直接入住' },
-]
+  { id: 'B', text: '支付 1500 點即可直接入住' },
+  { id: 'C', text: '目前登記租屋者的最高點數', correct: true },
+  { id: 'D', text: '需註冊滿 1500 天才有抽籤資格' },
 
 // 第二關：引導 → 作答 → 通關＋反思（換畫面的邏輯在 QuizStage）
 export default function Q2({ path, active, navigate, onSolved }) {
@@ -110,7 +109,7 @@ function Question({ onBack, onCorrect }) {
       {/* 作答區：題目＋四個垂直排列的選項 */}
       <div className={`${styles.answerArea} ${quiz.glass} ${quiz.rise}`} style={{ '--delay': '0.25s' }}>
         <p className={styles.prompt} id="q2-prompt">
-          史力奇在國營租屋網 Stångåstaden 看到這間心儀的公寓，網頁標籤上寫著「1500 poäng（點）」。請問這個數字代表什麼意思？
+          史力奇在國營租屋網站 Stångåstaden 看到這間心儀的公寓，標籤上寫著「1500 poäng（點）」。請問這個數字代表什麼意思？
         </p>
         <div className={styles.answers} role="group" aria-labelledby="q2-prompt">
           {OPTIONS.map((o) => {
