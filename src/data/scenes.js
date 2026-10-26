@@ -42,3 +42,7 @@ export const FIRST_SCENE_HEIGHT = 1290
 
 // 提燈在原圖上的像素位置
 export const LANTERN = { x: 234, y: 1078 }
+
+// 去背的牛（public/images/home-cow.png）疊回長背景的位置與寬度（原圖像素）
+// 用牛的左右角尖、身體右緣三個點，從「背景_牛和燈.svg」換算過來（縮放 0.487）
+export const COW = { src: 'images/home-cow.png', x: 402.7, y: 744.8, w: 209.4 }

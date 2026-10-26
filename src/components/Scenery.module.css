@@ -17,29 +17,70 @@
   transition: background-position var(--slide-duration) var(--slide-ease);
 }
 
-/* ---------- 1-1. 首頁巨型浮水印 NORDIC ----------
-   overlay 混色：白字會讓底下的冰原變亮、保留紋理，像浮水印
-   和背景一起往上滑（同樣的 transform），翻到其他頁時淡出 */
+/* ---------- 2. 首頁巨字「牛」 ----------
+   外層 .giant：鋪滿畫面，和背景一起往上滑（同樣的 transform），翻到其他頁時淡出
+   下緣用 mask 漸漸透明，字像是從雪地裡長出來的 */
 .giant {
   position: absolute;
-  left: 50%;
-  top: 47%;
-  translate: -50% -50%;
-  font-family: var(--font-latin);
-  font-size: 22cqw;
-  font-weight: 900;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  white-space: nowrap;
-  color: #ffffff;
-  mix-blend-mode: overlay;
-  opacity: calc(0.3 * (1 - var(--menu-progress)));
+  inset: 0;
+  pointer-events: none;
+  opacity: calc(0.9 * (1 - var(--menu-progress)));
   transform: translateY(calc((100cqh - var(--img-h)) * var(--p)));
   transition:
     transform var(--slide-duration) var(--slide-ease),
     opacity var(--slide-duration) var(--slide-ease);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 58%, transparent 84%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 58%, transparent 84%);
+}
+
+/* 內層：字本身。大到畫面放不下、往右邊裁出去
+   translate：跟著滑鼠的視差（--mx、--my 由 Scenery.jsx 寫入）
+   scale：緩慢的呼吸；transform：進場動畫 —— 三種動作用不同屬性，不會互相蓋掉 */
+.giantInner {
+  position: absolute;
+  /* 「牛」那一豎要剛好從真牛的身體後面穿過
+     背景圖跟著畫面「高度」縮放，所以牛身的中心在「畫面中線 + 8% 畫面高」；
+     那一豎在這個字裡大約 52.4% 的位置 → left = 牛身中心 − 0.524 × 字級 */
+  left: calc(50cqw + 8cqh - 0.524 * 60cqh);
+  top: 15cqh;
+  font-family: var(--font-title);
+  font-size: 60cqh;
+  font-weight: 500;
+  line-height: 1;
+  color: #ffffff;
+  text-shadow: 0 0 40px rgba(255, 255, 255, 0.25);
+  white-space: nowrap;
   -webkit-user-select: none;
   user-select: none;
+  translate: calc(var(--mx, 0) * -22px) calc(var(--my, 0) * -14px);
+  transition: translate 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation:
+    giantIn 2.2s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both,
+    giantBreathe 8s ease-in-out 2.4s infinite;
+}
+
+/* 從霧裡浮現：由下往上、由模糊變清楚 */
+@keyframes giantIn {
+  from {
+    opacity: 0;
+    transform: translateY(6%);
+    filter: blur(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+@keyframes giantBreathe {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.025;
+  }
 }
 
 /* ---------- 2. 跟著背景滑的圖層 ----------
@@ -97,6 +138,17 @@
   40%      { scale: 0.94; }
   62%      { scale: 1.05; }
   80%      { scale: 0.97; }
+}
+
+/* 去背的牛：精準疊在背景裡那頭牛的位置上，所以看起來沒變，
+   但它排在巨字「牛」的前面 → 牛站在字的前方，擋住部分筆畫 */
+.cow {
+  position: absolute;
+  left: calc(var(--img-w) * var(--cow-x));
+  top: calc(var(--img-w) * var(--cow-y));
+  width: calc(var(--img-w) * var(--cow-w));
+  height: auto;
+  pointer-events: none;
 }
 
 /* 接縫霧帶：中心對準拼接線，上下漸漸透明 */

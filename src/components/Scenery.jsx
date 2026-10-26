@@ -1,13 +1,32 @@
-import { BG_IMAGE, FIRST_SCENE_HEIGHT, LANTERN } from '../data/scenes.js'
+import { useEffect, useRef } from 'react'
+import { BG_IMAGE, COW, FIRST_SCENE_HEIGHT, LANTERN } from '../data/scenes.js'
 import styles from './Scenery.module.css'
 
-// 背景場景：長圖本身不動畫，位置由捲動決定（CSS 變數 --p，見 App.jsx）；
+// 背景場景：長圖本身不動畫，位置由翻頁決定（CSS 變數 --p，見 App.jsx）；
 // 燭火、霧是另外疊上去的 div，製造「活著」的感覺
-export default function Scenery() {
+// 首頁海報：巨大的「牛」字夾在背景和去背的牛之間 → 真的牛站在字的前面
+// isHome：現在是不是在首頁（只有首頁要跟著滑鼠做視差）
+export default function Scenery({ isHome }) {
   // 背景圖要畫多寬：讓第一段場景剛好一個螢幕高（cqh = 畫面高的 1%），
   // 但至少要和畫面一樣寬，不然兩側會露出空白
   const sceneWidthCqh = (BG_IMAGE.width / FIRST_SCENE_HEIGHT) * 100
   const ratio = BG_IMAGE.height / BG_IMAGE.width
+  const giantRef = useRef(null)
+
+  // 視差：滑鼠往右，巨字往左偏一點；字和牛移動量不同，看起來就有前後深度
+  // 只寫進 CSS 變數，不重新渲染畫面
+  useEffect(() => {
+    const el = giantRef.current
+    if (!isHome || !el) return
+    const onMove = (e) => {
+      const mx = e.clientX / window.innerWidth - 0.5 // -0.5 ~ 0.5
+      const my = e.clientY / window.innerHeight - 0.5
+      el.style.setProperty('--mx', mx.toFixed(3))
+      el.style.setProperty('--my', my.toFixed(3))
+    }
+    window.addEventListener('pointermove', onMove)
+    return () => window.removeEventListener('pointermove', onMove)
+  }, [isHome])
 
   return (
     <div
@@ -19,6 +38,9 @@ export default function Scenery() {
         '--lantern-x': LANTERN.x / BG_IMAGE.width,
         '--lantern-y': LANTERN.y / BG_IMAGE.width,
         '--seam-y': FIRST_SCENE_HEIGHT / BG_IMAGE.width,
+        '--cow-x': COW.x / BG_IMAGE.width,
+        '--cow-y': COW.y / BG_IMAGE.width,
+        '--cow-w': COW.w / BG_IMAGE.width,
       }}
       aria-hidden="true"
     >
@@ -28,22 +50,26 @@ export default function Scenery() {
         style={{ backgroundImage: `url(${import.meta.env.BASE_URL}${BG_IMAGE.src})` }}
       />
 
-      {/* 1-1. 首頁的巨型浮水印字：要緊貼在底圖上面，mix-blend-mode 才能和冰原混色
-               （首頁本身在另一個圖層，混色碰不到底圖，所以放在這裡） */}
-      <div className={styles.giant}>NORDIC</div>
+      {/* 2. 首頁巨字「牛」：在背景之上、牛之下，跟著背景一起滑走 */}
+      <div ref={giantRef} className={styles.giant}>
+        <span className={styles.giantInner}>牛</span>
+      </div>
 
-      {/* 2. 跟著背景一起滑的圖層：燭火要黏在圖上的提燈位置 */}
+      {/* 3. 後層迷霧：從巨字前面飄過去，字像立在霧裡 */}
+      <div className={`${styles.fog} ${styles.fogBack}`} />
+
+      {/* 4. 跟著背景一起滑的圖層：燭火要黏在提燈上、去背的牛要對準背景裡的牛 */}
       <div className={styles.track}>
         <div className={styles.lantern} />
         {/* 長圖第一段和第二段的拼接線，用一條霧帶蓋住 */}
         <div className={styles.seam} />
+        <img className={styles.cow} src={`${import.meta.env.BASE_URL}${COW.src}`} alt="" />
       </div>
 
-      {/* 3. 迷霧：兩層速度不同、方向相反 */}
-      <div className={`${styles.fog} ${styles.fogBack}`} />
+      {/* 5. 前層迷霧：從牛腳邊飄過 */}
       <div className={`${styles.fog} ${styles.fogFront}`} />
 
-      {/* 4. 頂部壓暗：讓白字在淺色霧地上也看得清楚；越往進度頁滑越深 */}
+      {/* 6. 頂部壓暗：讓白字在淺色霧地上也看得清楚；越往進度頁滑越深 */}
       <div className={styles.scrim} />
       <div className={`${styles.scrim} ${styles.scrimStrong}`} />
     </div>

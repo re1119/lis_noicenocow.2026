@@ -111,7 +111,7 @@ export default function App() {
       }}
     >
       {/* 背景：長圖、燭火、霧，跟著翻頁一起滑 */}
-      <Scenery />
+      <Scenery isHome={activeIndex === 0} />
 
       {/* 前景：所有頁面上下疊在一起，整串用 transform 往上推 */}
       <main className={styles.slider}>

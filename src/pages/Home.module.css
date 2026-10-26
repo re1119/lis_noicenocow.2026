@@ -1,7 +1,8 @@
 /* ============================================
    首頁：日本展覽海報風格（Editorial Design）
-   所有元素都用絕對定位散在畫面四周，打破置中；
-   邊距用同一個變數 --edge，四個角落才會對齊成一個隱形的框
+   主視覺是背景層的巨字「牛」＋站在字前面的真牛（Scenery），這裡只放少量文字
+   構圖：左上（資訊＋直書標題）↘ 右下（展期＋Start），對角線平衡，中間留給巨字
+   邊距統一用 --edge，四個角落對齊同一個隱形的框
    ============================================ */
 
 .home {
@@ -14,131 +15,120 @@
 .bottomShade {
   position: absolute;
   inset: auto 0 0 0;
-  height: 42%;
+  height: 36%;
   pointer-events: none;
   background: linear-gradient(to top, rgba(28, 38, 51, 0.55), rgba(28, 38, 51, 0));
 }
 
-/* ---------- 四角的細節小字 ---------- */
+/* ---------- 左上：展覽資訊 ---------- */
 .meta {
   position: absolute;
+  top: calc(var(--edge) + env(safe-area-inset-top));
+  left: var(--edge);
   margin: 0;
   font-family: var(--font-latin);
   font-size: 10px;
   font-weight: 500;
   line-height: 2;
   letter-spacing: var(--tracking-widest);
-  text-transform: uppercase;
   color: var(--color-text);
   text-shadow: var(--shadow-text);
-  animation: fadeIn 1.2s ease-out 0.6s both;
+  animation: fadeIn 1.2s ease-out 1s both;
 }
 
-.topLeft {
-  top: calc(var(--edge) + env(safe-area-inset-top));
-  left: var(--edge);
-}
-
-.topRight {
-  top: calc(var(--edge) + env(safe-area-inset-top));
-  right: var(--edge);
-  text-align: right;
-  /* 字距會在每行最後多出一格，往右推回去，右邊才會貼齊 */
-  margin-right: calc(var(--tracking-widest) * -1);
-}
-
-/* ---------- 錯落的主標題 ---------- */
-.title {
+/* ---------- 左側直書標題 ---------- */
+.titleColumn {
   position: absolute;
-  top: clamp(90px, 17cqh, 170px);
-  left: 14%;
+  top: calc(clamp(84px, 13cqh, 120px) + env(safe-area-inset-top));
+  left: var(--edge);
   display: flex;
-  flex-direction: column;
+  flex-direction: row-reverse; /* 直書由右往左讀：標題在右、諺語在左 */
+  align-items: flex-start;
+  gap: 10px;
+  animation: fadeIn 1.4s ease-out 1.2s both;
+}
+
+.title {
   margin: 0;
+  writing-mode: vertical-rl;
   font-family: var(--font-title);
-  font-size: clamp(40px, 6cqh, var(--text-hero));
+  font-size: clamp(20px, 3cqh, 26px);
   font-weight: 500;
-  line-height: 1.45;
-  letter-spacing: 0.5em;
+  line-height: 1;
+  letter-spacing: 0.55em;
   color: var(--color-text);
   text-shadow: var(--shadow-text-strong);
 }
 
-/* 三行依序往右錯開：0、2em、4em… 用 em 讓錯開的距離跟著字級縮放 */
-.line {
-  animation: lineIn 1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+/* 諺語：英文在直書裡會側躺，像海報邊緣的小註記 */
+.proverb {
+  margin: 0;
+  writing-mode: vertical-rl;
+  font-family: var(--font-latin);
+  font-size: 9px;
+  font-style: italic;
+  letter-spacing: 0.18em;
+  color: var(--color-text);
+  opacity: 0.8;
+  text-shadow: var(--shadow-text);
 }
 
-.line:nth-child(1) {
-  margin-left: 0;
-  animation-delay: 0.1s;
-}
-
-.line:nth-child(2) {
-  margin-left: 0.7em;
-  animation-delay: 0.25s;
-}
-
-.line:nth-child(3) {
-  margin-left: 1.4em;
-  animation-delay: 0.4s;
-}
-
-@keyframes lineIn {
-  from {
-    opacity: 0;
-    transform: translateX(-12px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* ---------- 左下角引言 ----------
-   提燈在畫面高度約 80%～87% 的位置（背景跟著畫面高度縮放，所以比例固定），
-   引言放在提燈正上方的霧區，不要蓋住燭火 */
-.quote {
+/* ---------- 右下：英文展期 ---------- */
+.dates {
   position: absolute;
-  left: var(--edge);
-  bottom: calc(22cqh + env(safe-area-inset-bottom));
-  max-width: 76%;
+  right: var(--edge);
+  bottom: calc(clamp(84px, 11cqh, 104px) + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
   color: var(--color-text);
   text-shadow: var(--shadow-text);
-  animation: fadeIn 1.2s ease-out 0.8s both;
+  animation: fadeIn 1.4s ease-out 1.5s both;
 }
 
-/* 瑞典諺語「冰上沒有牛」：斜體、稍大，像海報上的引文 */
-.proverb {
-  margin: 0 0 10px;
+/* 一小段細線，像海報上的分隔記號 */
+.rule {
+  width: 36px;
+  height: 1px;
+  margin-bottom: 12px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.dateLabel {
+  margin: 0 0 4px;
   font-family: var(--font-latin);
-  font-size: 15px;
-  font-style: italic;
-  letter-spacing: 0.02em;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: var(--tracking-widest);
+  margin-right: calc(var(--tracking-widest) * -1); /* 抵消最後一個字母後的字距，右邊才貼齊 */
 }
 
-.welcome {
+/* 展期：細字大數字，海報上最醒目的資訊
+   OCT 29 / — / NOV 11 三行靠右，中間的長破折號縮小、變淡 */
+.dateRange {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
   margin: 0;
-  font-size: 12px;
-  line-height: 1.9;
-  letter-spacing: 0.06em;
-  opacity: 0.85;
+  font-family: var(--font-latin);
+  font-size: clamp(26px, 4cqh, 34px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
-/* ---------- 右下角 Start：極簡文字＋細底線 ---------- */
+.dash {
+  font-size: 0.5em;
+  line-height: 1.4;
+  opacity: 0.6;
+}
+
+/* ---------- 右下 Start：極簡文字＋細底線 ---------- */
 .start {
   position: absolute;
   right: var(--edge);
-  bottom: calc(clamp(28px, 4cqh, 40px) + env(safe-area-inset-bottom));
+  bottom: calc(clamp(24px, 3.5cqh, 36px) + env(safe-area-inset-bottom));
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -148,7 +138,7 @@
   border: 0;
   background: none;
   font-family: var(--font-latin);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   letter-spacing: var(--tracking-widest);
   color: var(--color-text);
@@ -156,7 +146,7 @@
   cursor: pointer;
 }
 
-/* 底線用偽元素畫：貼在文字下方 4px，不會被 44px 的點擊高度推遠 */
+/* 底線用偽元素畫：貼在文字下方，不會被 44px 的點擊高度推遠 */
 .start::after {
   content: '';
   position: absolute;
@@ -183,4 +173,13 @@
 
 .start:active {
   opacity: 0.7;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

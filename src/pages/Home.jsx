@@ -1,8 +1,8 @@
 import styles from './Home.module.css'
 
 // 畫面一：開場首頁（第 1 頁），日本展覽海報風格
-// 版面：四個角落散落細節小字、主標題三行錯落、引言在左下、Start 在右下
-// 巨型 NORDIC 浮水印放在背景層（Scenery.jsx），才能和冰原底圖混色
+// 主角是背景層的巨字「牛」和站在字前面的真牛（都在 Scenery.jsx），
+// 這裡只放少量文字，留出大片空白讓畫面呼吸
 // active：現在是不是在這一頁；onStart：點 Start 時要做的事（翻到下一頁）
 export default function Home({ active, onStart }) {
   return (
@@ -12,41 +12,29 @@ export default function Home({ active, onStart }) {
       <div className={styles.bottomShade} aria-hidden="true" />
 
       {/* 左上角：展覽資訊 */}
-      <p className={`${styles.meta} ${styles.topLeft}`}>
+      <p className={styles.meta}>
         NTU LIS EXHIBITION
         <br />
-        VOL. 01 — 2026
+        VOL. 01
       </p>
 
-      {/* 右上角：四個北歐國家 */}
-      <p className={`${styles.meta} ${styles.topRight}`}>
-        SWEDEN / DENMARK
-        <br />
-        FINLAND / NORWAY
-      </p>
-
-      {/* 主標題：三行往右錯開；aria-label 讓螢幕報讀器唸成一整句 */}
-      <h1 className={styles.title} aria-label="冰上沒有牛。">
-        <span className={styles.line} aria-hidden="true">
-          冰上
-        </span>
-        <span className={styles.line} aria-hidden="true">
-          沒有
-        </span>
-        <span className={styles.line} aria-hidden="true">
-          牛。
-        </span>
-      </h1>
-
-      {/* 左下角：瑞典諺語＋歡迎詞 */}
-      <div className={styles.quote}>
+      {/* 左側直書：主標題＋一行極小的瑞典諺語（「冰上沒有牛」的原文） */}
+      <div className={styles.titleColumn}>
+        <h1 className={styles.title}>冰上沒有牛。</h1>
         <p className={styles.proverb} lang="sv">
-          “Det är ingen ko på isen.”
+          Det är ingen ko på isen.
         </p>
-        <p className={styles.welcome}>
-          歡迎來到北歐童話世界。
-          <br />
-          請帶著好奇心，與我們一起踏上尋寶之旅。
+      </div>
+
+      {/* 右下角：英文展期 */}
+      <div className={styles.dates}>
+        <span className={styles.rule} aria-hidden="true" />
+        <p className={styles.dateLabel}>EXHIBITION — 2026</p>
+        {/* 兩行靠右堆疊：比一長行更像海報，也不會往左壓到提燈 */}
+        <p className={styles.dateRange}>
+          <time dateTime="2026-10-29">OCT 29</time>
+          <span className={styles.dash} aria-label="到">—</span>
+          <time dateTime="2026-11-11">NOV 11</time>
         </p>
       </div>
 
