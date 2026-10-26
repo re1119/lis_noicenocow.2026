@@ -17,6 +17,75 @@
   transition: background-position var(--slide-duration) var(--slide-ease);
 }
 
+/* ---------- 1-1 / 5-1. 首頁的雪：遠近兩層 ----------
+   一片「雪點圖樣」往下移動剛好一格的高度就回到原點 → 無縫循環
+   遠處：小、清楚、慢，在巨字後面；近處：大、模糊、快，在牛的前面 → 拉出景深
+   只有首頁有雪，翻到其他頁時淡出 */
+.snow {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: calc(1 - var(--menu-progress));
+  transition: opacity var(--slide-duration) var(--slide-ease);
+}
+
+.snow::before {
+  content: '';
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  top: calc(var(--tile-h) * -1);
+  height: calc(100% + var(--tile-h));
+  background-repeat: repeat;
+  animation: snowFall var(--fall) linear infinite;
+}
+
+@keyframes snowFall {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(var(--tile-h));
+  }
+}
+
+.snowFar {
+  --tile-h: 300px;
+  --fall: 16s;
+  /* 在巨字後面：滑鼠移動時往反方向動一點點 */
+  translate: calc(var(--mx, 0) * -6px) calc(var(--my, 0) * -4px);
+  transition: translate 0.9s cubic-bezier(0.2, 0.8, 0.2, 1), opacity var(--slide-duration) var(--slide-ease);
+}
+
+.snowFar::before {
+  background-size: 150px 300px;
+  background-image:
+    radial-gradient(circle at 12% 8%, rgba(255, 255, 255, 0.85) 0 1.2px, transparent 2px),
+    radial-gradient(circle at 63% 22%, rgba(255, 255, 255, 0.7) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 34% 41%, rgba(255, 255, 255, 0.8) 0 1.4px, transparent 2.2px),
+    radial-gradient(circle at 86% 57%, rgba(255, 255, 255, 0.65) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 21% 74%, rgba(255, 255, 255, 0.75) 0 1.2px, transparent 2px),
+    radial-gradient(circle at 72% 90%, rgba(255, 255, 255, 0.8) 0 1.3px, transparent 2.1px);
+}
+
+.snowNear {
+  --tile-h: 460px;
+  --fall: 7s;
+  /* 在牛的前面、最靠近我們：滑鼠移動時往同方向動最多 */
+  translate: calc(var(--mx, 0) * 26px) calc(var(--my, 0) * 16px);
+  transition: translate 0.9s cubic-bezier(0.2, 0.8, 0.2, 1), opacity var(--slide-duration) var(--slide-ease);
+}
+
+.snowNear::before {
+  background-size: 280px 460px;
+  background-image:
+    radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.75) 0 4px, transparent 7px),
+    radial-gradient(circle at 76% 46%, rgba(255, 255, 255, 0.6) 0 6px, transparent 10px),
+    radial-gradient(circle at 42% 82%, rgba(255, 255, 255, 0.7) 0 3px, transparent 6px);
+  filter: blur(2.5px); /* 離鏡頭太近，對不到焦 */
+}
+
 /* ---------- 2. 首頁巨字「牛」 ----------
    外層 .giant：鋪滿畫面，和背景一起往上滑（同樣的 transform），翻到其他頁時淡出
    下緣用 mask 漸漸透明，字像是從雪地裡長出來的 */
@@ -52,7 +121,7 @@
   white-space: nowrap;
   -webkit-user-select: none;
   user-select: none;
-  translate: calc(var(--mx, 0) * -22px) calc(var(--my, 0) * -14px);
+  translate: calc(var(--mx, 0) * -16px) calc(var(--my, 0) * -10px);
   transition: translate 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
   animation:
     giantIn 2.2s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both,

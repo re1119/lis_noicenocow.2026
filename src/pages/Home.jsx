@@ -11,31 +11,38 @@ export default function Home({ active, onStart }) {
       {/* 底部壓暗：讓白色小字壓在亮雪地上也讀得清楚 */}
       <div className={styles.bottomShade} aria-hidden="true" />
 
-      {/* 左上角：展覽資訊 */}
-      <p className={styles.meta}>
-        NTU LIS EXHIBITION
-        <br />
-        VOL. 01
-      </p>
-
-      {/* 左側直書：主標題＋一行極小的瑞典諺語（「冰上沒有牛」的原文） */}
-      <div className={styles.titleColumn}>
-        <h1 className={styles.title}>冰上沒有牛。</h1>
-        <p className={styles.proverb} lang="sv">
-          Det är ingen ko på isen.
+      {/* 文字層：會跟著滑鼠做一點點視差（比巨字更靠近我們，所以方向相反） */}
+      <div className={styles.layer}>
+        {/* 左上角：一行展覽資訊，星號連到牛旁邊的註腳 */}
+        <p className={styles.meta}>
+          NO COW ON ICE<span className={styles.star}>*</span> — NTU LIS
         </p>
-      </div>
 
-      {/* 右下角：英文展期 */}
-      <div className={styles.dates}>
-        <span className={styles.rule} aria-hidden="true" />
-        <p className={styles.dateLabel}>EXHIBITION — 2026</p>
-        {/* 兩行靠右堆疊：比一長行更像海報，也不會往左壓到提燈 */}
-        <p className={styles.dateRange}>
-          <time dateTime="2026-10-29">OCT 29</time>
-          <span className={styles.dash} aria-label="到">—</span>
-          <time dateTime="2026-11-11">NOV 11</time>
+        {/* 左側直書：主標題＋主題副標＋瑞典諺語原文（由右往左讀） */}
+        <div className={styles.titleColumn}>
+          <h1 className={styles.title}>冰上沒有牛。</h1>
+          <p className={styles.subtitle}>北歐書展・精靈尋寶</p>
+          <p className={styles.proverb} lang="sv">
+            Det är ingen ko på isen.
+          </p>
+        </div>
+
+        {/* 註腳：細線拉到真牛頭上——「冰上沒有牛*（除了這頭）」 */}
+        <p className={styles.footnote}>
+          <span className={styles.leader} aria-hidden="true" />
+          *EXCEPT THIS ONE.
         </p>
+
+        {/* 右下角：濃縮的英文展期 */}
+        <div className={styles.dates}>
+          <span className={styles.rule} aria-hidden="true" />
+          <p className={styles.dateRange}>
+            <time dateTime="2026-10-29">OCT 29</time>
+            <span className={styles.dash}> — </span>
+            <time dateTime="2026-11-11">NOV 11</time>
+          </p>
+          <p className={styles.year}>2026</p>
+        </div>
       </div>
 
       {/* 右下角：極簡文字按鈕；magic-pulse 是全站共用的「點我」呼吸光暈（global.css） */}

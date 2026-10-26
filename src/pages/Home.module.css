@@ -15,12 +15,22 @@
 .bottomShade {
   position: absolute;
   inset: auto 0 0 0;
-  height: 36%;
+  height: 32%;
   pointer-events: none;
-  background: linear-gradient(to top, rgba(28, 38, 51, 0.55), rgba(28, 38, 51, 0));
+  background: linear-gradient(to top, rgba(28, 38, 51, 0.5), rgba(28, 38, 51, 0));
 }
 
-/* ---------- 左上：展覽資訊 ---------- */
+/* 文字層：比巨字和牛更靠近我們，滑鼠移動時往「反方向」小幅移動 → 拉出前後深度
+   （--mx、--my 由 Scenery.jsx 寫在網頁最外層） */
+.layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  translate: calc(var(--mx, 0) * 8px) calc(var(--my, 0) * 5px);
+  transition: translate 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ---------- 左上：一行展覽資訊 ---------- */
 .meta {
   position: absolute;
   top: calc(var(--edge) + env(safe-area-inset-top));
@@ -29,22 +39,27 @@
   font-family: var(--font-latin);
   font-size: 10px;
   font-weight: 500;
-  line-height: 2;
   letter-spacing: var(--tracking-widest);
+  white-space: nowrap;
   color: var(--color-text);
   text-shadow: var(--shadow-text);
   animation: fadeIn 1.2s ease-out 1s both;
 }
 
-/* ---------- 左側直書標題 ---------- */
+/* 星號：連到牛旁邊的註腳，暖色一點讓人想找它在哪 */
+.star {
+  color: #ffd99a;
+}
+
+/* ---------- 左側直書：標題＋副標＋諺語 ---------- */
 .titleColumn {
   position: absolute;
-  top: calc(clamp(84px, 13cqh, 120px) + env(safe-area-inset-top));
+  top: calc(clamp(72px, 11cqh, 104px) + env(safe-area-inset-top));
   left: var(--edge);
   display: flex;
-  flex-direction: row-reverse; /* 直書由右往左讀：標題在右、諺語在左 */
+  flex-direction: row-reverse; /* 直書由右往左讀：標題在最右 */
   align-items: flex-start;
-  gap: 10px;
+  gap: 12px;
   animation: fadeIn 1.4s ease-out 1.2s both;
 }
 
@@ -60,24 +75,63 @@
   text-shadow: var(--shadow-text-strong);
 }
 
+/* 主題副標：小一號、往下錯開一格，讓三欄不要齊頭 */
+.subtitle {
+  margin: 2.2em 0 0;
+  writing-mode: vertical-rl;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.4em;
+  color: var(--color-text);
+  opacity: 0.9;
+  text-shadow: var(--shadow-text);
+}
+
 /* 諺語：英文在直書裡會側躺，像海報邊緣的小註記 */
 .proverb {
-  margin: 0;
+  margin: 4.4em 0 0;
   writing-mode: vertical-rl;
   font-family: var(--font-latin);
   font-size: 9px;
   font-style: italic;
   letter-spacing: 0.18em;
   color: var(--color-text);
-  opacity: 0.8;
+  opacity: 0.75;
   text-shadow: var(--shadow-text);
 }
 
-/* ---------- 右下：英文展期 ---------- */
+/* ---------- 註腳：細線指向真牛 ----------
+   背景跟著畫面「高度」縮放，牛背的位置約在「畫面中線 + 12% 畫面高」、高度 57% 處
+   這一區是淺色霧，所以用深色墨水字 */
+.footnote {
+  position: absolute;
+  top: 53.6cqh; /* 「牛」字下面那一橫的下方，不壓到白色筆畫 */
+  right: var(--edge);
+  margin: 0;
+  font-family: var(--font-latin);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  white-space: nowrap;
+  color: var(--color-ink);
+  animation: fadeIn 1.2s ease-out 2.4s both;
+}
+
+/* 細引線：從註腳往下拉到牛背 */
+.leader {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: calc(50cqw + 12cqh - (100cqw - var(--edge)) + 100%);
+  width: 1px;
+  height: 2.2cqh;
+  background: rgba(47, 53, 64, 0.6);
+}
+
+/* ---------- 右下：濃縮的英文展期 ---------- */
 .dates {
   position: absolute;
   right: var(--edge);
-  bottom: calc(clamp(84px, 11cqh, 104px) + env(safe-area-inset-bottom));
+  bottom: calc(clamp(80px, 10.5cqh, 100px) + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -86,42 +140,35 @@
   animation: fadeIn 1.4s ease-out 1.5s both;
 }
 
-/* 一小段細線，像海報上的分隔記號 */
+/* 全頁唯一一條細線 */
 .rule {
-  width: 36px;
+  width: 28px;
   height: 1px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   background: rgba(255, 255, 255, 0.7);
 }
 
-.dateLabel {
-  margin: 0 0 4px;
-  font-family: var(--font-latin);
-  font-size: 9px;
-  font-weight: 500;
-  letter-spacing: var(--tracking-widest);
-  margin-right: calc(var(--tracking-widest) * -1); /* 抵消最後一個字母後的字距，右邊才貼齊 */
-}
-
-/* 展期：細字大數字，海報上最醒目的資訊
-   OCT 29 / — / NOV 11 三行靠右，中間的長破折號縮小、變淡 */
 .dateRange {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
   margin: 0;
   font-family: var(--font-latin);
-  font-size: clamp(26px, 4cqh, 34px);
+  font-size: clamp(17px, 2.5cqh, 21px);
   font-weight: 400;
-  line-height: 1.1;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   white-space: nowrap;
 }
 
 .dash {
-  font-size: 0.5em;
-  line-height: 1.4;
   opacity: 0.6;
+}
+
+.year {
+  margin: 4px 0 0;
+  font-family: var(--font-latin);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: var(--tracking-widest);
+  margin-right: calc(var(--tracking-widest) * -1); /* 抵消最後一個字的字距，右邊才貼齊 */
+  opacity: 0.85;
 }
 
 /* ---------- 右下 Start：極簡文字＋細底線 ---------- */

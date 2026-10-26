@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { BG_IMAGE, COW, FIRST_SCENE_HEIGHT, LANTERN } from '../data/scenes.js'
 import styles from './Scenery.module.css'
 
@@ -11,18 +11,18 @@ export default function Scenery({ isHome }) {
   // 但至少要和畫面一樣寬，不然兩側會露出空白
   const sceneWidthCqh = (BG_IMAGE.width / FIRST_SCENE_HEIGHT) * 100
   const ratio = BG_IMAGE.height / BG_IMAGE.width
-  const giantRef = useRef(null)
 
-  // 視差：滑鼠往右，巨字往左偏一點；字和牛移動量不同，看起來就有前後深度
-  // 只寫進 CSS 變數，不重新渲染畫面
+  // 視差：把滑鼠位置寫成 CSS 變數 --mx、--my（-0.5 ~ 0.5），各圖層依「離我們多遠」決定移動量：
+  //   背景、真牛 → 不動（對焦的那一層）
+  //   巨字「牛」、遠處的雪 → 在牛後面，往反方向動
+  //   近處的雪、首頁文字 → 在牛前面，往同方向動，越近動越多
+  // 寫在網頁最外層（documentElement），首頁的文字層也讀得到；不會重新渲染畫面
   useEffect(() => {
-    const el = giantRef.current
-    if (!isHome || !el) return
+    if (!isHome) return
+    const root = document.documentElement
     const onMove = (e) => {
-      const mx = e.clientX / window.innerWidth - 0.5 // -0.5 ~ 0.5
-      const my = e.clientY / window.innerHeight - 0.5
-      el.style.setProperty('--mx', mx.toFixed(3))
-      el.style.setProperty('--my', my.toFixed(3))
+      root.style.setProperty('--mx', (e.clientX / window.innerWidth - 0.5).toFixed(3))
+      root.style.setProperty('--my', (e.clientY / window.innerHeight - 0.5).toFixed(3))
     }
     window.addEventListener('pointermove', onMove)
     return () => window.removeEventListener('pointermove', onMove)
@@ -50,8 +50,11 @@ export default function Scenery({ isHome }) {
         style={{ backgroundImage: `url(${import.meta.env.BASE_URL}${BG_IMAGE.src})` }}
       />
 
+      {/* 1-1. 遠處的雪：細小、清楚、落得慢（首頁才有） */}
+      <div className={`${styles.snow} ${styles.snowFar}`} />
+
       {/* 2. 首頁巨字「牛」：在背景之上、牛之下，跟著背景一起滑走 */}
-      <div ref={giantRef} className={styles.giant}>
+      <div className={styles.giant}>
         <span className={styles.giantInner}>牛</span>
       </div>
 
@@ -68,6 +71,9 @@ export default function Scenery({ isHome }) {
 
       {/* 5. 前層迷霧：從牛腳邊飄過 */}
       <div className={`${styles.fog} ${styles.fogFront}`} />
+
+      {/* 5-1. 近處的雪：又大又模糊、落得快，像就在鏡頭前面（首頁才有） */}
+      <div className={`${styles.snow} ${styles.snowNear}`} />
 
       {/* 6. 頂部壓暗：讓白字在淺色霧地上也看得清楚；越往進度頁滑越深 */}
       <div className={styles.scrim} />
