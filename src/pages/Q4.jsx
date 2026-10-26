@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import QuizStage from '../components/QuizStage.jsx'
+import { IntroProgress, useIntroTimer } from '../components/QuizIntro.jsx'
 import { useToast } from '../hooks/useToast.js'
 import quiz from '../styles/quiz.module.css'
 import styles from './Q4.module.css'
@@ -32,7 +33,7 @@ const QUESTIONS = [
       { id: 'C', text: '哥本哈根' },
       { id: 'D', text: '斯德哥爾摩' },
     ],
-    answer: 'B',
+    answer: 'D',
   },
   {
     note: 'images/q4-note-3.jpg',
@@ -42,7 +43,7 @@ const QUESTIONS = [
       { id: 'B', text: '沒有信，只有一朵花' },
       { id: 'C', text: '如果我多一張船票，你會不會跟我一起走？' },
     ],
-    answer: 'C',
+    answer: 'B',
   },
 ]
 
@@ -67,14 +68,16 @@ export default function Q4({ path, active, navigate, onSolved }) {
       renderStep={(step, { screenActive, goQuestion, goSuccess, goMenu }) => {
         if (step === 'question') return <Quiz onBack={goMenu} onDone={goSuccess} />
         if (step === 'success') return <Success active={screenActive} onSolved={onSolved} onBack={goMenu} />
-        return <Intro onStart={goQuestion} />
+        return <Intro active={screenActive} onNext={goQuestion} />
       }}
     />
   )
 }
 
-/* ============ 任務指派（引導頁）：不自動跳轉，給玩家時間去翻書 ============ */
-function Intro({ onStart }) {
+/* ============ 任務指派（引導頁）：和其他關一樣是純過場，5 秒後自動進入題目 ============ */
+function Intro({ active, onNext }) {
+  useIntroTimer(active, onNext)
+
   return (
     <div className={styles.intro}>
       <h2 className={styles.introTitle}>亞美發現了一樁 40 年懸案...</h2>
@@ -92,10 +95,7 @@ function Intro({ onStart }) {
           <i className="iconoir-open-book" aria-hidden="true" />
           請翻到《龍紋身的女孩》第 21-24 頁，然後回來揭曉謎底！
         </p>
-        <button type="button" className={`${styles.startButton} ${quiz.glowButton}`} onClick={onStart}>
-          開始辦案
-          <i className="iconoir-arrow-right" aria-hidden="true" />
-        </button>
+        <IntroProgress />
       </div>
     </div>
   )
@@ -212,14 +212,14 @@ function Success({ active, onSolved, onBack }) {
 
       <article className={`${styles.resultCard} ${quiz.glass} ${quiz.rise}`} style={{ '--delay': '0.6s' }}>
         <h2 className={styles.resultTitle}>今年的「沙漠雪」，是第 44 號。</h2>
+        {/* 拆成兩段：卡片裡每個段落之間本來就有 16px 的間距（.resultCard 的 gap） */}
+        <p className={styles.resultText}>每年一朵壓花，整整 44 年從未間斷。</p>
         <p className={styles.resultText}>
-          每年一朵壓花，整整 44 年從未間斷。
-          <br />
           但為什麼牆上的相框少了一格？
           <br />
           為什麼收到花的老人哭了？
         </p>
-        <p className={`${quiz.highlight} ${styles.clue}`}>
+        <p className={quiz.highlight}>
           <i className="iconoir-search" aria-hidden="true" />
           <span>解答就藏在書裡。如果你也好奇真相，翻開書讀讀看吧！</span>
         </p>
@@ -231,7 +231,7 @@ function Success({ active, onSolved, onBack }) {
         style={{ '--delay': '0.85s' }}
         onClick={onBack}
       >
-        結束尋寶，回到圖鑑
+        回到尋寶地圖
       </button>
     </div>
   )

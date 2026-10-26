@@ -159,7 +159,7 @@ function Success({ active, onSolved, onBack }) {
         style={{ '--delay': '0.45s' }}
         onClick={onBack}
       >
-        回到尋寶圖鑑
+        回到尋寶地圖
       </button>
     </div>
   )

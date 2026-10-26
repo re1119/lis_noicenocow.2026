@@ -100,8 +100,7 @@ function Question({ onBack, onCorrect }) {
               alt="史力奇站在雪地裡，看著這棟公寓"
             />
           </span>
-          <figcaption className={styles.listingTag}>
-            <i className="iconoir-map-pin" aria-hidden="true" />
+          <figcaption className={styles.listingTag} lang="sv">
             1500 poäng
           </figcaption>
         </figure>
