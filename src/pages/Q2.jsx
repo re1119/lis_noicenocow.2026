@@ -182,7 +182,9 @@ function Success({ active, onSolved, onDone }) {
               <i className="iconoir-sparks" aria-hidden="true" />
             </h2>
             <p className={styles.faceText}>
-              Stångåstaden 網頁上的分數代表「目前登記者的最高點數」。由點數多寡，決定優先順序，史力奇如果點數不夠，就只能摸摸鼻子繼續睡帳篷囉。
+              Stångåstaden 網頁的分數代表「目前登記者的最高點數」，點數多寡決定優先順序。
+              <br /> 
+              史力奇如果點數不夠，就只能摸摸鼻子繼續睡帳篷囉
               <i className={`iconoir-bonfire ${styles.inlineIcon}`} aria-hidden="true" />
             </p>
             <p className={quiz.highlight}>
