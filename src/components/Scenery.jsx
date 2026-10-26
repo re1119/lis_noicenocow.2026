@@ -28,6 +28,10 @@ export default function Scenery() {
         style={{ backgroundImage: `url(${import.meta.env.BASE_URL}${BG_IMAGE.src})` }}
       />
 
+      {/* 1-1. 首頁的巨型浮水印字：要緊貼在底圖上面，mix-blend-mode 才能和冰原混色
+               （首頁本身在另一個圖層，混色碰不到底圖，所以放在這裡） */}
+      <div className={styles.giant}>NORDIC</div>
+
       {/* 2. 跟著背景一起滑的圖層：燭火要黏在圖上的提燈位置 */}
       <div className={styles.track}>
         <div className={styles.lantern} />

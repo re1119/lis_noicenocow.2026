@@ -17,6 +17,31 @@
   transition: background-position var(--slide-duration) var(--slide-ease);
 }
 
+/* ---------- 1-1. 首頁巨型浮水印 NORDIC ----------
+   overlay 混色：白字會讓底下的冰原變亮、保留紋理，像浮水印
+   和背景一起往上滑（同樣的 transform），翻到其他頁時淡出 */
+.giant {
+  position: absolute;
+  left: 50%;
+  top: 47%;
+  translate: -50% -50%;
+  font-family: var(--font-latin);
+  font-size: 22cqw;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  color: #ffffff;
+  mix-blend-mode: overlay;
+  opacity: calc(0.3 * (1 - var(--menu-progress)));
+  transform: translateY(calc((100cqh - var(--img-h)) * var(--p)));
+  transition:
+    transform var(--slide-duration) var(--slide-ease),
+    opacity var(--slide-duration) var(--slide-ease);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 /* ---------- 2. 跟著背景滑的圖層 ----------
    背景圖往下滑 p% 時，圖片實際往上移了 (圖高 - 畫面高) × p
    這一層用 transform 移動同樣距離，提燈光暈就會黏在提燈上 */

@@ -1,75 +1,186 @@
-/* 這一屏的高度由 App.module.css 統一設成 100%（＝一個畫面）
-   下面的大小都用 cqh（畫面高的 1%）搭配 clamp(最小, 理想, 最大)，
-   矮的手機會自動縮小，高的手機也不會無限放大 */
+/* ============================================
+   首頁：日本展覽海報風格（Editorial Design）
+   所有元素都用絕對定位散在畫面四周，打破置中；
+   邊距用同一個變數 --edge，四個角落才會對齊成一個隱形的框
+   ============================================ */
+
 .home {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: calc(clamp(24px, 6cqh, 56px) + env(safe-area-inset-top)) var(--space-m)
-    calc(clamp(20px, 5cqh, 48px) + env(safe-area-inset-bottom));
-  text-align: center;
+  --edge: 24px;
+  position: relative;
+  overflow: hidden;
 }
 
-.titleBlock {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: clamp(12px, 2.5cqh, 20px);
-  margin-top: clamp(0px, 4cqh, 48px);
+/* 底部壓暗：雪地很亮，小字需要一點深色墊底 */
+.bottomShade {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 42%;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(28, 38, 51, 0.55), rgba(28, 38, 51, 0));
 }
 
-/* 主標題：三行、字距拉開，像冰原上的刻字 */
+/* ---------- 四角的細節小字 ---------- */
+.meta {
+  position: absolute;
+  margin: 0;
+  font-family: var(--font-latin);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 2;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--color-text);
+  text-shadow: var(--shadow-text);
+  animation: fadeIn 1.2s ease-out 0.6s both;
+}
+
+.topLeft {
+  top: calc(var(--edge) + env(safe-area-inset-top));
+  left: var(--edge);
+}
+
+.topRight {
+  top: calc(var(--edge) + env(safe-area-inset-top));
+  right: var(--edge);
+  text-align: right;
+  /* 字距會在每行最後多出一格，往右推回去，右邊才會貼齊 */
+  margin-right: calc(var(--tracking-widest) * -1);
+}
+
+/* ---------- 錯落的主標題 ---------- */
 .title {
+  position: absolute;
+  top: clamp(90px, 17cqh, 170px);
+  left: 14%;
   display: flex;
   flex-direction: column;
   margin: 0;
   font-family: var(--font-title);
-  font-size: clamp(36px, 6cqh, var(--text-hero));
+  font-size: clamp(40px, 6cqh, var(--text-hero));
   font-weight: 500;
-  line-height: 1.5;
-  letter-spacing: 0.6em;
-  /* letter-spacing 會在最後一個字後面也多一格，往右推回來保持置中 */
-  margin-right: -0.6em;
+  line-height: 1.45;
+  letter-spacing: 0.5em;
   color: var(--color-text);
   text-shadow: var(--shadow-text-strong);
 }
 
-.subtitle {
-  max-width: 20em;
-  margin: 0;
-  font-size: var(--text-body);
-  line-height: 1.8;
-  color: var(--color-text);
-  opacity: 0.92;
-  text-shadow: var(--shadow-text);
+/* 三行依序往右錯開：0、2em、4em… 用 em 讓錯開的距離跟著字級縮放 */
+.line {
+  animation: lineIn 1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
-/* Start：透明底、白框、圓角 */
+.line:nth-child(1) {
+  margin-left: 0;
+  animation-delay: 0.1s;
+}
+
+.line:nth-child(2) {
+  margin-left: 0.7em;
+  animation-delay: 0.25s;
+}
+
+.line:nth-child(3) {
+  margin-left: 1.4em;
+  animation-delay: 0.4s;
+}
+
+@keyframes lineIn {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ---------- 左下角引言 ----------
+   提燈在畫面高度約 80%～87% 的位置（背景跟著畫面高度縮放，所以比例固定），
+   引言放在提燈正上方的霧區，不要蓋住燭火 */
+.quote {
+  position: absolute;
+  left: var(--edge);
+  bottom: calc(22cqh + env(safe-area-inset-bottom));
+  max-width: 76%;
+  color: var(--color-text);
+  text-shadow: var(--shadow-text);
+  animation: fadeIn 1.2s ease-out 0.8s both;
+}
+
+/* 瑞典諺語「冰上沒有牛」：斜體、稍大，像海報上的引文 */
+.proverb {
+  margin: 0 0 10px;
+  font-family: var(--font-latin);
+  font-size: 15px;
+  font-style: italic;
+  letter-spacing: 0.02em;
+}
+
+.welcome {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.9;
+  letter-spacing: 0.06em;
+  opacity: 0.85;
+}
+
+/* ---------- 右下角 Start：極簡文字＋細底線 ---------- */
 .start {
-  flex: none;
-  min-width: 160px;
-  min-height: 48px; /* 手指好按的大小 */
-  padding: var(--space-s) var(--space-l);
-  border: 1.5px solid rgba(255, 255, 255, 0.9);
-  border-radius: var(--radius-pill);
-  /* 幾乎透明，只加一點深色霧面，白字在亮雪地上才讀得到 */
-  background: rgba(28, 38, 51, 0.2);
-  -webkit-backdrop-filter: blur(3px);
-  backdrop-filter: blur(3px);
-  font-family: var(--font-title);
-  font-size: 22px;
-  letter-spacing: 0.12em;
+  position: absolute;
+  right: var(--edge);
+  bottom: calc(clamp(28px, 4cqh, 40px) + env(safe-area-inset-bottom));
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  /* 看起來很小，但點擊範圍至少 44px 高（手指好按） */
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-latin);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: var(--tracking-widest);
+  color: var(--color-text);
   text-shadow: var(--shadow-text);
   cursor: pointer;
-  transition: background-color 0.25s ease, transform 0.15s ease;
 }
 
-.start:hover {
-  background-color: rgba(255, 255, 255, 0.12);
+/* 底線用偽元素畫：貼在文字下方 4px，不會被 44px 的點擊高度推遠 */
+.start::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.5);
+  transition: background-color 0.3s ease;
 }
 
-/* 按下去的瞬間微縮，和精靈的點擊回饋一致 */
+.start i {
+  font-size: 15px;
+  transition: translate 0.3s ease;
+}
+
+.start:hover::after {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.start:hover i {
+  translate: 4px 0;
+}
+
 .start:active {
-  transform: scale(0.95);
+  opacity: 0.7;
 }

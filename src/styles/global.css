@@ -23,6 +23,9 @@
   /* 字體 */
   --font-title: 'Huiwen Mincho', 'Noto Serif TC', serif;
   --font-body: 'GenSen Rounded TW', 'Noto Sans TC', sans-serif;
+  /* 英文細節字：乾淨的無襯線字，搭配大字距，營造展覽海報感 */
+  --font-latin: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --tracking-widest: 0.28em;
 
   /* 顏色 */
   --color-text: #ffffff;
