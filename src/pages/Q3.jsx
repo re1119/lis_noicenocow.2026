@@ -104,7 +104,7 @@ function Success({ active, onSolved, onBack }) {
         <p className={quiz.highlight}>
           <i className="iconoir-language" aria-hidden="true" />
           <span>
-            <strong>Hygge（呼嘎）：</strong>丹麥語中的「溫暖、舒適」，是北歐人度過漫長寒冬的幸福秘訣。
+            <strong>Hygge（呼嘎）：</strong>丹麥語中的<span className={quiz.mark}>溫暖、舒適</span>，是北歐人度過漫長寒冬的幸福秘訣。
           </span>
         </p>
       </article>

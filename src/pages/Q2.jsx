@@ -110,7 +110,15 @@ function Question({ onBack, onCorrect }) {
       {/* 作答區：題目＋四個垂直排列的選項 */}
       <div className={`${styles.answerArea} ${quiz.glass} ${quiz.rise}`} style={{ '--delay': '0.25s' }}>
         <p className={styles.prompt} id="q2-prompt">
-          史力奇在國營租屋網站 Stångåstaden 看到這間心儀的公寓，標籤上寫著「1500 poäng（點）」。請問這個數字代表什麼意思？
+          {/* 重點詞不用「」，改用顏色凸顯（quiz.mark）
+              1500 poäng（點）要整組不拆開，所以手動換行，讓它固定在新的一行開頭；
+              每一行在 360px 寬的手機上都放得下 */}
+          史力奇在國營租屋網站 Stångåstaden
+          <br />
+          看到這間心儀的公寓，標籤上寫著
+          <br />
+          <span className={`${quiz.mark} nobr`}>1500 poäng（點）</span>
+          。請問這個數字代表什麼意思？
         </p>
         <div className={styles.answers} role="group" aria-labelledby="q2-prompt">
           {OPTIONS.map((o) => {
@@ -183,7 +191,8 @@ function Success({ active, onSolved, onDone }) {
               <i className="iconoir-sparks" aria-hidden="true" />
             </h2>
             <p className={styles.faceText}>
-              Stångåstaden 網頁的分數代表「目前登記者的最高點數」，點數多寡決定優先順序。
+              Stångåstaden 網頁的分數代表<span className={quiz.mark}>目前登記者的最高點數</span>
+              ，點數多寡決定優先順序。
               <br /> 
               史力奇如果點數不夠，就只能摸摸鼻子繼續睡帳篷囉
               <i className={`iconoir-bonfire ${styles.inlineIcon}`} aria-hidden="true" />
@@ -203,7 +212,9 @@ function Success({ active, onSolved, onDone }) {
           {/* 反面：反思題 */}
           <article className={`${styles.face} ${styles.back}`} inert={!isFlipped} aria-hidden={!isFlipped}>
             <h2 className={styles.faceTitle}>想一想...</h2>
-            <p className={styles.faceText}>如果臺灣也採用這種「排隊累積點數」的公共住宅制度，你會想排隊嗎？</p>
+            <p className={styles.faceText}>
+              如果臺灣也採用這種<span className={quiz.mark}>排隊累積點數</span>的公共住宅制度，你會想排隊嗎？
+            </p>
             <div className={styles.reflectOptions}>
               {[
                 { id: 'A', text: '會，感覺很公平！' },

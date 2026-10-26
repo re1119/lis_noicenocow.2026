@@ -94,7 +94,11 @@ function Intro({ active, onNext }) {
       <div className={`${styles.mission} ${quiz.rise}`} style={{ '--delay': '0.9s' }}>
         <p className={`${styles.missionCard} ${quiz.glass}`}>
           <i className="iconoir-open-book" aria-hidden="true" />
-          請翻到《龍紋身的女孩》第 21-24 頁，然後回來揭曉謎底！
+          {/* 在書名號後面手動換行：「21-24 頁，」要黏在一起，自動換行時上一行會空太多 */}
+          <span>
+            請翻到《龍紋身的女孩》
+            <br />第 21-24 頁，然後回來揭曉謎底！
+          </span>
         </p>
         <IntroProgress />
       </div>

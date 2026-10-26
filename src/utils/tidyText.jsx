@@ -8,13 +8,17 @@ import { Children, cloneElement, isValidElement } from 'react'
 // 排版原則：
 //   1. 標點不能出現在行首 → 標點和前面的字黏在一起
 //   2. 不能「一個字＋標點」開頭（例如「呢！」）→ 標點連同前面兩個字一起黏
-//   3. 「」引號不要上下拆開 → 16 字以內的引號整組黏住
-//   另外：段落最後不要只剩一個字；短的英文詞組（Tivoli Gardens）不拆開
+//   3. 「」引號不要上下拆開 → 5 字以內的短引號整組黏住；長的改用顏色凸顯
+//   4. 換行時上一行不要空超過 3 個字 → 黏住的範圍都很短
+//   另外：段落最後不要只剩一個字
+//   黏住的範圍越長，換行時上一行空越多；需要整組不拆開又很長的（例如 1500 poäng（點）），
+//   改在文字裡手動加 <br />，固定換行位置
 // ============================================
 
 const CLOSE = '。，、；：？！」』）】》〉…～~'
 const QUOTES = { '「': '」', '『': '』', '“': '”' }
 const MAX_GROUP = 16 // 黏在一起最多幾個字，太長會超出畫面
+const MAX_QUOTE = 5 // 整組黏住的引號最多幾個字（含「」）：換行時上一行最多空 3～4 個字
 const LATIN = /[A-Za-z0-9À-ž.'\-]/
 
 const isSpace = (s) => /^\s+$/.test(s)
@@ -26,14 +30,19 @@ function toUnits(str) {
   let i = 0
   while (i < str.length) {
     const ch = str[i]
-    // 引號：整組當成一塊
+    // 引號：短的（例如「沙漠雪」）整組當成一塊；
+    // 長的整組黏住會被推到下一行、上一行空出一大段，所以只把「和後面兩個字黏住，
+    // 」會在下面的標點規則和前面的字黏住。長的重點詞建議改用顏色凸顯（quiz.mark）
     if (QUOTES[ch]) {
       const end = str.indexOf(QUOTES[ch], i + 1)
-      if (end > 0 && end - i + 1 <= MAX_GROUP) {
+      if (end > 0 && end - i + 1 <= MAX_QUOTE) {
         units.push(str.slice(i, end + 1))
         i = end + 1
         continue
       }
+      units.push(str.slice(i, i + 3))
+      i += 3
+      continue
     }
     // 英文、數字：一整個字當成一塊
     if (LATIN.test(ch)) {
@@ -67,17 +76,7 @@ function toUnits(str) {
       }
       continue
     }
-    // 兩個英文字中間只隔一個空格、合起來不長：黏在一起（Tivoli Gardens）
-    if (
-      out.length >= 2 &&
-      LATIN.test(u[0]) &&
-      out[out.length - 1] === ' ' &&
-      LATIN.test(out[out.length - 2].slice(-1)) &&
-      out[out.length - 2].length + 1 + u.length <= MAX_GROUP
-    ) {
-      out.splice(out.length - 2, 2, `${out[out.length - 2]} ${u}`)
-      continue
-    }
+    // 英文詞組（Tivoli Gardens）不黏：整組換行會讓上一行空出一大截
     out.push(u)
   }
 
