@@ -5,6 +5,7 @@ import SuccessFigure from '../components/SuccessFigure.jsx'
 import CatchGame from '../components/CatchGame.jsx'
 import quiz from '../styles/quiz.module.css'
 import styles from './Q3.module.css'
+import { tidy } from '../utils/tidyText.jsx'
 
 // 正確物件池：能帶來幸福感的東西（接到 5 個就過關，不用 7 個全接）
 const CORRECT_ITEMS = [
@@ -81,7 +82,7 @@ function Success({ active, onSolved, onBack }) {
     if (active) onSolved()
   }, [active, onSolved])
 
-  return (
+  return tidy(
     <div className={styles.success}>
       {/* 全畫面柔和的暖金色，象徵 Hygge 的溫馨 */}
       <div className={styles.hyggeWash} aria-hidden="true" />

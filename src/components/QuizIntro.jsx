@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import quiz from '../styles/quiz.module.css'
+import { tidy } from '../utils/tidyText.jsx'
 
 // 引導頁是純過場：不能點，停留 5 秒後自動進入題目
 // 計時從畫面「滑到定位」才算：翻頁轉場 1 秒 + 停留 5 秒
@@ -31,7 +32,7 @@ export function IntroProgress() {
 export default function QuizIntro({ active, onNext, img, alt, children }) {
   useIntroTimer(active, onNext)
 
-  return (
+  return tidy(
     <div className={quiz.intro}>
       <p className={quiz.introText}>{children}</p>
       <span className={quiz.introFigure}>

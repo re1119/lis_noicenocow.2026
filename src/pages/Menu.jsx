@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { SPRITES } from '../data/sprites.js'
+import { tidy } from '../utils/tidyText.jsx'
 import styles from './Menu.module.css'
 
 const asset = (path) => `${import.meta.env.BASE_URL}${path}`
@@ -59,7 +60,8 @@ export default function Menu({ active, progress, onOpenQuiz }) {
       <header className={styles.header} style={{ '--delay': `${HEADER_DELAY}s` }}>
         <h2 id="menu-title" className={styles.title}>北歐精靈尋寶圖鑑</h2>
         <p className={styles.subtitle}>
-          尋找展場中的精靈書籤，閱讀並正確回答即可解鎖關卡。準備好挑戰了嗎？
+          {/* tidy：整理中文斷行（標點不在行首、引號不拆開），見 utils/tidyText.jsx */}
+          {tidy('尋找展場中的精靈書籤，閱讀並正確回答即可解鎖關卡。準備好挑戰了嗎？')}
         </p>
       </header>
 

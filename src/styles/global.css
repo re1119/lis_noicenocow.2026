@@ -104,6 +104,11 @@ button {
   color: inherit;
 }
 
+/* 斷行整理用：黏在一起、不能從中間換行的字（由 utils/tidyText.jsx 自動加上） */
+.nobr {
+  white-space: nowrap;
+}
+
 /* 鍵盤操作時看得到焦點框 */
 :focus-visible {
   outline: 2px solid #ffffff;

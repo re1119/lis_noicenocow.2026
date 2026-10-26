@@ -5,6 +5,7 @@ import SuccessFigure from '../components/SuccessFigure.jsx'
 import { useToast } from '../hooks/useToast.js'
 import quiz from '../styles/quiz.module.css'
 import styles from './Q2.module.css'
+import { tidy } from '../utils/tidyText.jsx'
 
 const asset = (path) => `${import.meta.env.BASE_URL}${path}`
 
@@ -69,7 +70,7 @@ function Question({ onBack, onCorrect }) {
     if (!o.correct) setShake((s) => ({ id: o.id, key: s.key + 1 }))
   }
 
-  return (
+  return tidy(
     <div className={styles.question}>
       <button type="button" className={quiz.back} onClick={onBack} aria-label="回到尋寶圖鑑">
         <i className="iconoir-nav-arrow-left" aria-hidden="true" />
@@ -162,7 +163,7 @@ function Success({ active, onSolved, onDone }) {
     showToast('感謝你的分享！繼續尋寶吧 ~')
   }
 
-  return (
+  return tidy(
     <div className={styles.success}>
       <div className={quiz.warmGlow} aria-hidden="true" />
 

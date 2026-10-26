@@ -5,6 +5,7 @@ import { IntroProgress, useIntroTimer } from '../components/QuizIntro.jsx'
 import { useToast } from '../hooks/useToast.js'
 import quiz from '../styles/quiz.module.css'
 import styles from './Q4.module.css'
+import { tidy } from '../utils/tidyText.jsx'
 
 const asset = (path) => `${import.meta.env.BASE_URL}${path}`
 
@@ -78,7 +79,7 @@ export default function Q4({ path, active, navigate, onSolved }) {
 function Intro({ active, onNext }) {
   useIntroTimer(active, onNext)
 
-  return (
+  return tidy(
     <div className={styles.intro}>
       <h2 className={styles.introTitle}>亞美發現了一樁 40 年懸案...</h2>
 
@@ -132,7 +133,7 @@ function Quiz({ onBack, onDone }) {
     if (!correct) showToast('再仔細看看書裡的線索！')
   }
 
-  return (
+  return tidy(
     <div className={styles.quiz}>
       <button type="button" className={quiz.back} onClick={onBack} aria-label="回到尋寶圖鑑">
         <i className="iconoir-nav-arrow-left" aria-hidden="true" />
@@ -201,7 +202,7 @@ function Success({ active, onSolved, onBack }) {
     if (active) onSolved()
   }, [active, onSolved])
 
-  return (
+  return tidy(
     <div className={styles.success}>
       {/* 冷冷的月光，從花的位置往外暈開 */}
       <div className={styles.moonGlow} aria-hidden="true" />

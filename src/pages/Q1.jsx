@@ -4,6 +4,7 @@ import QuizIntro from '../components/QuizIntro.jsx'
 import SuccessFigure from '../components/SuccessFigure.jsx'
 import quiz from '../styles/quiz.module.css'
 import styles from './Q1.module.css'
+import { tidy } from '../utils/tidyText.jsx'
 
 const asset = (path) => `${import.meta.env.BASE_URL}${path}`
 
@@ -72,7 +73,7 @@ function Question({ onBack, onCorrect }) {
   if (solved) hint = '就是這尊！'
   else if (shake.id) hint = '好像不是這尊…再翻翻書看看？'
 
-  return (
+  return tidy(
     <div className={styles.question}>
       <button type="button" className={quiz.back} onClick={onBack} aria-label="回到尋寶圖鑑">
         <i className="iconoir-nav-arrow-left" aria-hidden="true" />
@@ -135,7 +136,7 @@ function Success({ active, onSolved, onBack }) {
     if (active) onSolved()
   }, [active, onSolved])
 
-  return (
+  return tidy(
     <div className={styles.success}>
       {/* 暖金色柔光，象徵解密成功 */}
       <div className={quiz.warmGlow} aria-hidden="true" />
