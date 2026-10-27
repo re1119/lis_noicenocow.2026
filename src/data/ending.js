@@ -96,4 +96,4 @@ export const FAVORITE_AREAS = [
 
 // Web3Forms 的存取金鑰：到 https://web3forms.com 輸入要收信的 email 就會寄來
 // 這把金鑰本來就是設計給網頁前端公開使用的（只能用來寄信到你的信箱），可以放在程式裡
-export const WEB3FORMS_KEY = 'YOUR_WEB3FORMS_KEY'
+export const WEB3FORMS_KEY = '3411ed7c-e478-4d11-bef9-aa783fa063da'

@@ -52,6 +52,8 @@ push 到 main 後約 1–2 分鐘，GitHub Actions 會自動 build 並更新網�
 2. 把 `src/data/ending.js` 裡的 `YOUR_WEB3FORMS_KEY` 換成那組 Key，存檔後 push
 3. 還沒換之前，表單送出會顯示「表單還沒設定好」，不會假裝送出成功
 
+目前已經設定好金鑰（2026.10.27 測試送出成功），回饋會寄到 Web3Forms 帳號綁定的信箱。
+
 ## 測試小技巧
 
 想把進度全部清掉、從頭玩：在瀏覽器開發者工具 Console 輸入
