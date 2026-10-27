@@ -1,31 +1,49 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { BG_IMAGE, COW, FIRST_SCENE_HEIGHT, LANTERN } from '../data/scenes.js'
 import styles from './Scenery.module.css'
 
-// 牛甩掉的雪花有幾片
-const SHED_COUNT = 26
+// 牛甩掉的雪花有幾片：被點的時候撒一大把；自己每 5 秒輕輕抖一下時只撒一點點
+const SHED_TAP = 26
+const SHED_IDLE = 7
+// 沒人點的時候，牛多久自己抖一下（提醒大家牠會動、可以點）
+const IDLE_SHAKE_MS = 5000
 const rand = (min, max) => min + Math.random() * (max - min)
 
 // 背景場景：長圖本身不動畫，位置由翻頁決定（CSS 變數 --p，見 App.jsx）；
 // 燭火、霧是另外疊上去的 div，製造「活著」的感覺
 // 首頁海報：巨大的「牛」字夾在背景和去背的牛之間 → 真的牛站在字的前面
-// isHome：現在是不是在首頁（只有首頁要跟著滑鼠做視差、牛才發光）
+// isHome：現在是不是在首頁（只有首頁要跟著滑鼠做視差、牛才發光、自己抖動）
 // cowShakes：牛被點了幾次，每次改變就抖一次、撒一把雪
 export default function Scenery({ isHome, cowShakes }) {
+  // shake.key 改變 → 抖一次；small：自己抖（輕、雪少）還是被點（大力、雪多）
+  const [shake, setShake] = useState({ key: 0, small: false })
+
+  // 被點了：大力抖一次
+  useEffect(() => {
+    if (cowShakes > 0) setShake((s) => ({ key: s.key + 1, small: false }))
+  }, [cowShakes])
+
+  // 在首頁時，每 5 秒自己輕輕抖一下；被點過就重新計時
+  useEffect(() => {
+    if (!isHome) return
+    const timer = setInterval(() => setShake((s) => ({ key: s.key + 1, small: true })), IDLE_SHAKE_MS)
+    return () => clearInterval(timer)
+  }, [isHome, cowShakes])
+
   // 每抖一次，重新隨機產生一把雪花：從牛背上的某一點噴出去，往上一點再落下
   const shed = useMemo(
     () =>
-      Array.from({ length: SHED_COUNT }, () => ({
+      Array.from({ length: shake.small ? SHED_IDLE : SHED_TAP }, () => ({
         x: rand(18, 88), // 起點：牛的寬度百分比（牛背範圍）
         y: rand(8, 34), // 起點：牛的高度百分比
-        dx: rand(-80, 80), // 往左右飛多遠（px）
-        up: rand(12, 42), // 先往上彈多高
+        dx: rand(-80, 80) * (shake.small ? 0.5 : 1), // 往左右飛多遠（px）
+        up: rand(12, 42) * (shake.small ? 0.5 : 1), // 先往上彈多高
         fall: rand(60, 130), // 最後落到多低
-        size: rand(3, 7.5),
+        size: rand(3, 7.5) * (shake.small ? 0.7 : 1),
         delay: rand(0, 0.25),
         duration: rand(0.9, 1.5),
       })),
-    [cowShakes],
+    [shake],
   )
 
   // 背景圖要畫多寬：讓第一段場景剛好一個螢幕高（cqh = 畫面高的 1%），
@@ -97,16 +115,21 @@ export default function Scenery({ isHome, cowShakes }) {
         <div className={styles.seam} />
         {/* 去背的牛：外層定位、中層待機呼吸＋「可以點」的光暈、內層負責抖動 */}
         <div className={styles.cowWrap}>
+          {/* 牛腳下的陰影：讓牛「站」在雪地上、從背景裡浮出來 */}
+          <div className={styles.cowShadow} />
           <div className={`${styles.cowIdle} ${isHome ? styles.cowHint : ''}`}>
-            {/* key 改變 → 重新建立元素 → 抖動動畫每次都從頭播 */}
-            <div key={cowShakes} className={cowShakes ? styles.cowShake : undefined}>
+            {/* key 改變 → 重新建立元素 → 抖動動畫每次都從頭播；自己抖的時候幅度小一點 */}
+            <div
+              key={shake.key}
+              className={shake.key ? `${styles.cowShake} ${shake.small ? styles.cowShakeSmall : ''}` : undefined}
+            >
               <img className={styles.cow} src={`${import.meta.env.BASE_URL}${COW.src}`} alt="" />
             </div>
           </div>
 
           {/* 甩下來的雪花 */}
-          {cowShakes > 0 && (
-            <div key={`shed-${cowShakes}`} className={styles.shed}>
+          {shake.key > 0 && (
+            <div key={`shed-${shake.key}`} className={styles.shed}>
               {shed.map((p, i) => (
                 <span
                   key={i}

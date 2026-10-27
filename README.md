@@ -28,6 +28,9 @@ push 到 main 後約 1–2 分鐘，GitHub Actions 會自動 build 並更新網�
 - `src/pages/Q2.jsx`：第 4 頁，第二關 `#/q2/intro` → `#/q2/question` → `#/q2/success`（3D 翻轉卡片＋反思題）
 - `src/pages/Q3.jsx`：第 5 頁，第三關 `#/q3/intro` → `#/q3/game` → `#/q3/success`（framer-motion 拖曳收集）
 - `src/pages/Q4.jsx`：第 6 頁，第四關 `#/q4/intro` → `#/q4/quiz` → `#/q4/success`（筆記本快問快答）
+- `src/pages/Ending.jsx`：第 7 頁，全破結局 `#/ending`（製作登機證 → 巨牛衝鋒 → 登機證下載 ↕ 回饋表單）
+  - 四關都答對後，玩家從最後一關回地圖的那一刻自動進入；看過一次就不再自動跳
+  - 守護精靈、金句、表單選項、Web3Forms 金鑰在 `src/data/ending.js`
 - `src/components/QuizStage.jsx`：每一關共用的換畫面、淡入淡出邏輯
 - `src/components/QuizIntro.jsx`、`SuccessFigure.jsx`：共用的引導頁、通關頁精靈＋星光
 - `src/styles/quiz.module.css`：每一關共用的動畫、標題、毛玻璃、提示樣式
@@ -42,6 +45,12 @@ push 到 main 後約 1–2 分鐘，GitHub Actions 會自動 build 並更新網�
 
 網站加了新的文字（新關卡、新題目），要在專案資料夾執行 `npm run fonts`，
 重新產生瘦身字體，否則新的字會顯示成備用字體。
+
+## 回饋表單設定（Web3Forms）
+
+1. 到 https://web3forms.com 輸入要收回饋的 email，信箱會收到一組 Access Key
+2. 把 `src/data/ending.js` 裡的 `YOUR_WEB3FORMS_KEY` 換成那組 Key，存檔後 push
+3. 還沒換之前，表單送出會顯示「表單還沒設定好」，不會假裝送出成功
 
 ## 測試小技巧
 

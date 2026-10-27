@@ -66,3 +66,22 @@ export function isSolved(quiz) {
     return false
   }
 }
+
+// 全破結局看過了嗎？（看過就不再自動跳過去，免得每次回地圖都被帶走）
+const ENDING_KEY = 'noicenocow:endingSeen'
+
+export function hasSeenEnding() {
+  try {
+    return localStorage.getItem(ENDING_KEY) === 'true'
+  } catch {
+    return false
+  }
+}
+
+export function markEndingSeen() {
+  try {
+    localStorage.setItem(ENDING_KEY, 'true')
+  } catch {
+    // 存不進去也沒關係，最多下次再看一次結局
+  }
+}

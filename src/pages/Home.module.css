@@ -86,28 +86,6 @@
   animation: fadeIn 1.2s ease-out 1.8s both;
 }
 
-/* 星號：連到牛下方的註腳，暖色一點讓人想找它在哪 */
-.star {
-  color: #ffd99a;
-}
-
-/* ---------- 註腳：在牛的下方，細線往上指到牛腳 ----------
-   背景跟著畫面「高度」縮放，牛腳約在畫面高度 70%、「畫面中線 + 7% 畫面高」的位置
-   這一區是淺色雪地，所以用深色墨水字 */
-.footnote {
-  position: absolute;
-  top: 72.6cqh;
-  right: var(--edge);
-  margin: 0;
-  font-family: var(--font-latin);
-  font-size: 9px;
-  font-weight: 500;
-  letter-spacing: 0.22em;
-  white-space: nowrap;
-  color: rgba(47, 53, 64, 0.7); /* 第 4 層：深色墨水字，淡一點 */
-  animation: fadeIn 1.2s ease-out 2.4s both;
-}
-
 /* ---------- 牛的點擊範圍：看不見，剛好蓋在真牛上 ----------
    位置算法和背景層的牛一樣：背景圖寬 = max(畫面寬, 畫面高 × 768/1290)，
    牛在原圖的 (402.7, 744.8)、寬 209.4（見 data/scenes.js 的 COW） */
@@ -123,16 +101,6 @@
   border-radius: 40%;
   background: none;
   cursor: pointer;
-}
-
-/* 細引線：從註腳往上拉到牛腳 */
-.leader {
-  position: absolute;
-  bottom: calc(100% + 3px);
-  left: calc(50cqw + 7cqh - (100cqw - var(--edge)) + 100%);
-  width: 1px;
-  height: 2cqh;
-  background: rgba(47, 53, 64, 0.6);
 }
 
 /* ---------- 右下：濃縮的英文展期 ---------- */

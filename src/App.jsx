@@ -6,9 +6,10 @@ import Q1 from './pages/Q1.jsx'
 import Q2 from './pages/Q2.jsx'
 import Q3 from './pages/Q3.jsx'
 import Q4 from './pages/Q4.jsx'
+import Ending from './pages/Ending.jsx'
 import { SECTION_PATHS, SECTION_POSITIONS, SWIPE_PAGE_COUNT, sectionOf } from './data/scenes.js'
 import { useHashPath } from './hooks/useHashPath.js'
-import { isSolved, useUnlocked } from './hooks/useUnlocked.js'
+import { hasSeenEnding, isSolved, markEndingSeen, useUnlocked } from './hooks/useUnlocked.js'
 import styles from './App.module.css'
 
 // 翻頁後要鎖多久（毫秒），比 1 秒的轉場動畫稍長，避免連續狂滑翻過頭
@@ -89,6 +90,21 @@ export default function App() {
     [navigate],
   )
 
+  // 全破自動進結局：四關都答對、而且還沒看過結局時，
+  // 玩家看完最後一關的通關頁、要回地圖的那一刻，改成直接帶到 /ending
+  // （不在答對的瞬間跳，不然最後一關的通關頁會被跳過）
+  const navigateQuiz = useCallback(
+    (to, options) => {
+      if (to === '/menu' && ['Q1', 'Q2', 'Q3', 'Q4'].every(isSolved) && !hasSeenEnding()) {
+        markEndingSeen()
+        navigate('/ending')
+        return
+      }
+      navigate(to, options)
+    },
+    [navigate],
+  )
+
   // 答對：記錄並解鎖對應的精靈
   const { solve } = progress
   const solveQ1 = useCallback(() => solve('Q1', 'amaka'), [solve])
@@ -120,10 +136,11 @@ export default function App() {
       <main className={styles.slider}>
         <Home active={activeIndex === 0} onStart={() => goTo(1)} onCowTap={shakeCow} />
         <Menu active={activeIndex === 1} progress={progress} onOpenQuiz={openQuiz} />
-        <Q1 path={path} active={activeIndex === 2} navigate={navigate} onSolved={solveQ1} />
-        <Q2 path={path} active={activeIndex === 3} navigate={navigate} onSolved={solveQ2} />
-        <Q3 path={path} active={activeIndex === 4} navigate={navigate} onSolved={solveQ3} />
-        <Q4 path={path} active={activeIndex === 5} navigate={navigate} onSolved={solveQ4} />
+        <Q1 path={path} active={activeIndex === 2} navigate={navigateQuiz} onSolved={solveQ1} />
+        <Q2 path={path} active={activeIndex === 3} navigate={navigateQuiz} onSolved={solveQ2} />
+        <Q3 path={path} active={activeIndex === 4} navigate={navigateQuiz} onSolved={solveQ3} />
+        <Q4 path={path} active={activeIndex === 5} navigate={navigateQuiz} onSolved={solveQ4} />
+        <Ending active={activeIndex === 6} navigate={navigate} />
       </main>
     </div>
   )

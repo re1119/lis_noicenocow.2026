@@ -28,15 +28,9 @@ export default function Home({ active, onStart, onCowTap }) {
             <span aria-hidden="true">冰上沒有</span>
           </h1>
           <p className={styles.sideMeta}>
-            NO COW ON ICE<span className={styles.star}>*</span> · NORDIC BOOK FAIR · NTU LIS
+            NO COW ON ICE · NORDIC BOOK FAIR · NTU LIS
           </p>
         </div>
-
-        {/* 註腳：在牛的下方，細線往上指到牛腳——「冰上沒有牛*（除了這頭）」，順便告訴大家牛可以點 */}
-        <p className={styles.footnote}>
-          <span className={styles.leader} aria-hidden="true" />
-          *EXCEPT THIS ONE — TAP IT.
-        </p>
 
         {/* 右下角：濃縮的英文展期 */}
         <div className={styles.dates}>

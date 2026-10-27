@@ -250,10 +250,23 @@
   pointer-events: none;
 }
 
+/* 牛本身加上陰影輪廓，和霧茫茫的背景分開、更突出 */
 .cow {
   display: block;
   width: 100%;
   height: auto;
+  filter: drop-shadow(0 6px 8px rgba(20, 26, 36, 0.5)) drop-shadow(0 0 1.5px rgba(30, 24, 20, 0.55));
+}
+
+/* 牛腳下的橢圓陰影：牛像真的站在雪地上 */
+.cowShadow {
+  position: absolute;
+  left: 22%;
+  right: 12%;
+  bottom: 2%;
+  height: 12%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse closest-side, rgba(30, 36, 48, 0.45), rgba(30, 36, 48, 0));
 }
 
 /* 待機：以腳為支點，身體像呼吸一樣微微鼓起、輕輕上浮 */
@@ -297,6 +310,33 @@
 .cowShake {
   transform-origin: 55% 95%;
   animation: cowShake 1s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* 每 5 秒自己抖一下：幅度只有一半、時間短一點，像打了個哆嗦 */
+.cowShakeSmall {
+  animation: cowShiver 0.7s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes cowShiver {
+  0%,
+  100% {
+    transform: none;
+  }
+  15% {
+    transform: skewX(-4.5deg) rotate(-1.4deg) translateX(-2px);
+  }
+  30% {
+    transform: skewX(4deg) rotate(1.2deg) translateX(2px);
+  }
+  45% {
+    transform: skewX(-3deg) rotate(-0.8deg) translateX(-1.4px);
+  }
+  60% {
+    transform: skewX(2deg) rotate(0.5deg) translateX(1px);
+  }
+  78% {
+    transform: skewX(-0.8deg);
+  }
 }
 
 @keyframes cowShake {

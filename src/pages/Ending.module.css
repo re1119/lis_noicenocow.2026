@@ -1,0 +1,861 @@
+/* ============================================
+   全破結局：製作登機證 → 巨牛衝鋒 → 登機證 ↕ 回饋表單
+   大小都用 cqh（畫面高的 1%），矮手機也放得下
+   ============================================ */
+
+.ending {
+  position: relative;
+}
+
+/* 深色迷霧底：蓋住後面的冰原，中間微微透一點冷光 */
+.mist {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 55% at 50% 42%, rgba(120, 140, 165, 0.35), transparent 70%),
+    linear-gradient(to bottom, rgba(18, 24, 34, 0.86), rgba(28, 36, 48, 0.94));
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+}
+
+/* ============ 第一頁：製作登機證 ============ */
+.create {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(14px, 2.6cqh, 24px);
+  height: 100%;
+  padding: calc(clamp(32px, 7cqh, 64px) + env(safe-area-inset-top)) var(--space-m)
+    calc(clamp(20px, 5cqh, 48px) + env(safe-area-inset-bottom));
+}
+
+.createTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: clamp(20px, 3cqh, 24px);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 16px rgba(var(--color-glow), 0.55), 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.createTitle i {
+  font-size: 22px;
+  color: #ffe2a3;
+}
+
+.createCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  padding: clamp(16px, 2.6cqh, 22px) 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fieldLabel {
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  opacity: 0.85;
+}
+
+.input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 16px;
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 16px; /* 16px 以上，iPhone 點進輸入框才不會自動放大畫面 */
+  letter-spacing: 0.06em;
+  outline: none;
+  transition: border-color 0.25s ease, background-color 0.25s ease;
+}
+
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.input:focus {
+  border-color: rgba(var(--color-glow), 0.9);
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.error {
+  min-height: 1.4em;
+  margin: 0;
+  font-size: 13px;
+  color: #ffb4a8;
+}
+
+/* ---------- 守護精靈 3D 輪播 ---------- */
+.carousel {
+  position: relative;
+  height: clamp(180px, 30cqh, 250px);
+  outline: none;
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.carousel:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+  border-radius: 12px;
+}
+
+/* 3D 舞台：從前方 600px 外看過來 */
+.stage3d {
+  position: absolute;
+  inset: 0 0 34px 0;
+  perspective: 600px;
+}
+
+/* 每一位精靈：依「離中間幾格」決定位置、大小、旋轉與透明度 */
+.guardian {
+  --box: clamp(84px, 14cqh, 116px);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--box);
+  height: calc(var(--box) * 1.15);
+  margin: calc(var(--box) * -0.575) 0 0 calc(var(--box) * -0.5);
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transform:
+    translateX(calc(var(--offset) * var(--box) * 1.05))
+    translateZ(calc(var(--abs) * -70px))
+    rotateY(calc(var(--offset) * -32deg))
+    scale(0.75);
+  opacity: calc(0.5 - (var(--abs) - 1) * 0.5);
+  filter: grayscale(1);
+  transition:
+    transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.6s ease,
+    filter 0.6s ease;
+}
+
+/* 選中：放大 1.25 倍、完全亮起、背後暖黃光 */
+.guardianOn {
+  z-index: 2;
+  transform: translateX(0) translateZ(0) rotateY(0) scale(1.25);
+  opacity: 1;
+  filter: drop-shadow(0 0 14px rgba(var(--color-glow), 0.85));
+  cursor: default;
+}
+
+.guardian img {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.guardianGlow {
+  position: absolute;
+  inset: -20%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 236, 180, 0.75) 0%, rgba(var(--color-glow), 0.35) 40%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.guardianOn .guardianGlow {
+  opacity: 1;
+  animation: glowBreathe 2.6s ease-in-out infinite;
+}
+
+@keyframes glowBreathe {
+  0%,
+  100% {
+    scale: 0.92;
+  }
+  50% {
+    scale: 1.06;
+  }
+}
+
+/* 兩側的小箭頭 */
+.arrow {
+  position: absolute;
+  top: calc(50% - 17px - 18px);
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.arrowLeft {
+  left: -6px;
+}
+
+.arrowRight {
+  right: -6px;
+}
+
+.guardianName {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: 17px;
+  letter-spacing: 0.2em;
+  text-align: center;
+  color: #fff7e6;
+  text-shadow: 0 0 12px rgba(var(--color-glow), 0.7);
+}
+
+.mainButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: auto;
+}
+
+/* ============ 第二頁之一：大霧與巨牛衝鋒 ============ */
+.charge {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 45%, rgba(70, 82, 98, 0.6), rgba(10, 14, 20, 0.95) 75%);
+}
+
+.chargeCow {
+  width: 46%;
+  transform-origin: 50% 60%;
+}
+
+/* 奔跑的上下顛簸 */
+.gallop {
+  display: block;
+  width: 100%;
+  animation: gallop 0.42s ease-in-out infinite;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.6));
+}
+
+@keyframes gallop {
+  0%,
+  100% {
+    translate: 0 0;
+    rotate: -1deg;
+  }
+  50% {
+    translate: 0 -6%;
+    rotate: 1.5deg;
+  }
+}
+
+/* 迷霧：兩層往相反方向快速飄 */
+.fogLayer {
+  position: absolute;
+  inset: -20% -60%;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 30% 20% at 25% 40%, rgba(220, 228, 238, 0.35), transparent 70%),
+    radial-gradient(ellipse 35% 25% at 70% 60%, rgba(220, 228, 238, 0.3), transparent 70%),
+    radial-gradient(ellipse 25% 18% at 50% 85%, rgba(220, 228, 238, 0.28), transparent 70%);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+
+.fogA {
+  animation: fogDrift 6s linear infinite;
+}
+
+.fogB {
+  animation: fogDrift 4s linear infinite reverse;
+  opacity: 0.8;
+}
+
+@keyframes fogDrift {
+  from {
+    transform: translateX(-8%);
+  }
+  to {
+    transform: translateX(8%);
+  }
+}
+
+/* ============ 登機證 ↕ 回饋表單：上下兩個畫面 ============ */
+.panels {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.panel {
+  position: absolute;
+  inset: 0;
+  transform: translateY(calc(var(--panel) * -100%));
+  transition: transform 0.8s var(--slide-ease);
+}
+
+.panel + .panel {
+  top: 100%;
+  bottom: -100%;
+}
+
+/* ---------- 第二頁之二：登機證 ---------- */
+.passPanel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(12px, 2cqh, 18px);
+  height: 100%;
+  padding: calc(clamp(18px, 3.5cqh, 36px) + env(safe-area-inset-top)) var(--space-m)
+    calc(clamp(14px, 3cqh, 28px) + env(safe-area-inset-bottom));
+}
+
+/* 卡片的大小：高度最多佔畫面 60%，寬度依 9:16 換算 */
+.passWrap {
+  flex: none;
+  height: min(60cqh, 560px);
+  aspect-ratio: 9 / 16;
+  container-type: inline-size;
+}
+
+.passFloat {
+  height: 100%;
+  animation: passFloat 5s ease-in-out 1.6s infinite;
+  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.45)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+@keyframes passFloat {
+  0%,
+  100% {
+    translate: 0 0;
+    rotate: 0deg;
+  }
+  50% {
+    translate: 0 -6px;
+    rotate: 0.6deg;
+  }
+}
+
+/* 下載用的登機證：放在畫面外、固定 360px 寬，html2canvas 拍完就移除 */
+.exportBox {
+  position: fixed;
+  left: -10000px;
+  top: 0;
+  width: 360px;
+  aspect-ratio: 9 / 16;
+  container-type: inline-size;
+}
+
+/* ---------- 登機證本體：燕麥色紙卡 ----------
+   字級都用 cqi（卡片寬度的 1%），畫面上和下載的圖片比例完全一樣 */
+.pass {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 8cqi 8cqi 6cqi;
+  border-radius: 4cqi;
+  background: #f9f6f0;
+  color: #3b3128;
+  font-family: var(--font-latin);
+  text-align: center;
+  /* 兩側半圓缺口：左右各一個透明的圓（下載時 html2canvas 看不懂，改在圖片上挖） */
+  -webkit-mask:
+    radial-gradient(circle var(--notch-r) at 0 var(--notch-y), transparent 98%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle var(--notch-r) at 100% var(--notch-y), transparent 98%, #000) right / 51% 100% no-repeat;
+  mask:
+    radial-gradient(circle var(--notch-r) at 0 var(--notch-y), transparent 98%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle var(--notch-r) at 100% var(--notch-y), transparent 98%, #000) right / 51% 100% no-repeat;
+}
+
+/* 質感暗色邊線：內縮一圈的細框 */
+.passFrame {
+  position: absolute;
+  inset: 3cqi;
+  border: 1px solid rgba(59, 49, 40, 0.35);
+  border-radius: 2.4cqi;
+  pointer-events: none;
+}
+
+.passTop {
+  position: relative;
+}
+
+.passMeta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 2.8cqi;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  opacity: 0.75;
+}
+
+.passExhibit {
+  margin: 5cqi 0 0;
+  font-size: 3.2cqi;
+  font-weight: 500;
+  letter-spacing: 0.6em;
+  margin-right: -0.6em;
+  opacity: 0.8;
+}
+
+.passTitle {
+  margin: 1.5cqi 0 0;
+  font-size: 8.6cqi; /* 「BOARDING PASS」剛好一行放得下 */
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+/* 中央的守護精靈＋柔光 */
+.passVisual {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  margin: 2cqi 0;
+}
+
+.passGlow {
+  position: absolute;
+  width: 70cqi;
+  height: 70cqi;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 214, 140, 0.55) 0%, rgba(255, 214, 140, 0.18) 45%, rgba(255, 214, 140, 0) 70%);
+}
+
+/* 圖片絕對定位、鋪滿中間這一格再等比縮放：
+   卡片變矮時圖片跟著縮小，不會壓到下面的暱稱 */
+.passVisual img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.passPassenger {
+  position: relative;
+}
+
+.passLabel {
+  display: block;
+  margin: 0;
+  font-size: 2.8cqi;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  opacity: 0.6;
+}
+
+.passName {
+  margin: 1.5cqi 0 0;
+  font-family: var(--font-title);
+  font-size: 7.5cqi;
+  letter-spacing: 0.08em;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.passQuote {
+  margin: 2.5cqi 0 0;
+  font-family: var(--font-title);
+  font-size: 4cqi;
+  line-height: 1.7;
+  letter-spacing: 0.04em;
+  color: #6b5640;
+}
+
+/* 撕線：缺口之間淡淡的虛線（位置 = 缺口高度） */
+.passTear {
+  position: absolute;
+  left: calc(var(--notch-r) + 2cqi);
+  right: calc(var(--notch-r) + 2cqi);
+  top: var(--notch-y);
+  border-top: 1px dashed rgba(59, 49, 40, 0.35);
+}
+
+/* 存根：缺口下方 */
+.passStub {
+  position: absolute;
+  left: 8cqi;
+  right: 8cqi;
+  top: calc(var(--notch-y) + 5cqi);
+  display: flex;
+  justify-content: space-between;
+  text-align: left;
+}
+
+.passStub > div:last-child {
+  text-align: right;
+}
+
+.passStubValue {
+  display: block;
+  margin-top: 1cqi;
+  font-size: 5cqi;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+}
+
+/* 存根佔掉卡片底部：卡片高 = 寬 × 16/9 ≈ 177.8cqi，缺口在 72%（128cqi）
+   所以底部留 46cqi（扣掉 6cqi 內距），上面的內容剛好停在撕線上方 */
+.passStubSpace {
+  flex: none;
+  height: 46cqi;
+}
+
+/* ---------- 下載、回饋按鈕與現場提示 ---------- */
+.passActions {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 1.8cqh, 16px);
+  width: 100%;
+}
+
+.buttonRow {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.smallButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 18px;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  color: var(--color-text);
+}
+
+.smallButton i {
+  font-size: 17px;
+}
+
+.tips {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+.tips li {
+  display: flex;
+  gap: 8px;
+}
+
+.tips i {
+  flex: none;
+  margin-top: 2px;
+  font-size: 16px;
+  color: #ffe2a3;
+}
+
+/* ---------- 產生好的圖片：全螢幕預覽 ---------- */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 24px;
+  background: rgba(10, 14, 20, 0.88);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.modalImage {
+  max-width: 100%;
+  max-height: 68vh;
+  border-radius: 10px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+  /* 讓手機可以長按圖片儲存 */
+  -webkit-touch-callout: default;
+  -webkit-user-select: auto;
+  user-select: auto;
+}
+
+.modalHint {
+  margin: 0;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  opacity: 0.9;
+}
+
+.modalClose {
+  position: absolute;
+  top: calc(14px + env(safe-area-inset-top));
+  right: 14px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* ============ 第三頁：回饋表單 ============ */
+.form {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 1.8cqh, 16px);
+  margin: calc(clamp(52px, 8cqh, 72px) + env(safe-area-inset-top)) var(--space-m) 0;
+  padding: clamp(16px, 2.6cqh, 22px) 18px;
+}
+
+.formBack {
+  position: absolute;
+  top: -52px;
+  left: 50%;
+  translate: -50% 0;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.q {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.qTitle {
+  padding: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+}
+
+.required {
+  margin-left: 6px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: #ffe2a3;
+  opacity: 0.9;
+}
+
+/* ---------- Q1：嚕嚕米滑桿 ---------- */
+.scoreRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.slider {
+  flex: 1;
+  height: 44px;
+  margin: 0;
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  touch-action: pan-x;
+}
+
+/* 軌道：已選的部分是暖金色 */
+.slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, #ffe2a3 var(--fill), rgba(255, 255, 255, 0.22) var(--fill));
+}
+
+.slider::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, #ffe2a3 var(--fill), rgba(255, 255, 255, 0.22) var(--fill));
+}
+
+/* 拉桿：嚕嚕米的頭 */
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 40px;
+  height: 40px;
+  margin-top: -17px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #f4f1ea var(--thumb) 50% 6% / 150% auto no-repeat;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35), 0 0 12px rgba(var(--color-glow), 0.5);
+}
+
+.slider::-moz-range-thumb {
+  width: 40px;
+  height: 40px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #f4f1ea var(--thumb) 50% 6% / 150% auto no-repeat;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35), 0 0 12px rgba(var(--color-glow), 0.5);
+}
+
+.scoreValue {
+  flex: none;
+  width: 56px;
+  font-family: var(--font-title);
+  font-size: 18px;
+  text-align: right;
+  color: #ffe2a3;
+}
+
+/* 刻度 1～5：也可以直接點數字
+   寬度和滑桿一樣（右邊扣掉分數 56px＋間距 12px）；
+   嚕嚕米直徑 40px，中心最左在 20px、最右在寬度 −20px，所以左右各內縮 10px（數字按鈕寬 20px） */
+.ticks {
+  display: flex;
+  justify-content: space-between;
+  margin: -6px 68px 0 0;
+  padding: 0 10px;
+}
+
+.ticks button {
+  width: 20px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-latin);
+  font-size: 12px;
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.ticks .tickOn {
+  opacity: 1;
+  color: #ffe2a3;
+}
+
+/* ---------- Q2：膠囊多選 ---------- */
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.pillOn {
+  border-color: rgba(var(--color-glow), 0.9);
+  background: rgba(var(--color-glow), 0.22);
+  box-shadow: 0 0 12px rgba(var(--color-glow), 0.4);
+}
+
+/* ---------- Q3：透明微霧輸入框 ---------- */
+.textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 16px;
+  line-height: 1.6;
+  resize: none;
+  outline: none;
+}
+
+.textarea:focus {
+  border-color: rgba(var(--color-glow), 0.9);
+}
+
+/* 送出中的小轉圈 */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+/* ---------- 送出成功 ---------- */
+.thanks {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  height: 100%;
+  padding: 0 var(--space-l);
+  text-align: center;
+}
+
+.thanksText {
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: clamp(17px, 2.6cqh, 20px);
+  line-height: 2;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 14px rgba(var(--color-glow), 0.5);
+}
+
+.thanksText i {
+  margin-left: 6px;
+  font-size: 18px;
+  vertical-align: -2px;
+  color: #ffd27a;
+}
