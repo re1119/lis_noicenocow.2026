@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { FAVORITE_AREAS, GUARDIANS, WEB3FORMS_KEY } from '../data/ending.js'
+import { useToast } from '../hooks/useToast.js'
 import quiz from '../styles/quiz.module.css'
 import { tidy } from '../utils/tidyText.jsx'
 import styles from './Ending.module.css'
@@ -47,9 +48,13 @@ export default function Ending({ active, navigate }) {
     return () => clearTimeout(timer)
   }, [stage])
 
+  // 色彩系統：按下「確認生成」之後，迷霧換成守護精靈的專屬色（見 data/ending.js）
+  const g = GUARDIANS[guardian]
+  const colors = stage === 'create' ? undefined : { '--mist': g.mist, '--deep': g.deep }
+
   return (
-    <section className={styles.ending} inert={!active} aria-label="全破結局：專屬北歐登機證">
-      {/* 深色迷霧底：蓋住後面的冰原 */}
+    <section className={styles.ending} style={colors} inert={!active} aria-label="全破結局：專屬北歐登機證">
+      {/* 深色迷霧底：蓋住後面的冰原；製作頁是中性的冷灰藍，之後換成精靈的顏色 */}
       <div className={styles.mist} aria-hidden="true" />
 
       <AnimatePresence mode="wait">
@@ -293,7 +298,12 @@ function PassAndFeedback({ nickname, guardian, onHome }) {
 /* ---------- 登機證本體（畫面上和下載用的是同一個元件） ---------- */
 function BoardingPass({ nickname, guardian, date }) {
   return (
-    <div className={styles.pass} style={{ '--notch-y': `${NOTCH_Y * 100}%`, '--notch-r': `${NOTCH_R * 100}cqi` }}>
+    <div
+      className={styles.pass}
+      style={{ '--notch-y': `${NOTCH_Y * 100}%`, '--notch-r': `${NOTCH_R * 100}cqi`, '--tint': guardian.tint }}
+    >
+      {/* 精靈專屬色的淡淡暈染（約 10%～14%），不影響文字閱讀 */}
+      <div className={styles.passTint} aria-hidden="true" />
       <div className={styles.passFrame} aria-hidden="true" />
 
       <div className={styles.passTop}>
@@ -338,13 +348,14 @@ function BoardingPass({ nickname, guardian, date }) {
 function PassPanel({ nickname, guardian, onFeedback }) {
   const [date] = useState(today)
   const [image, setImage] = useState(null) // 產生好的登機證圖片（data URL）
-  const [busy, setBusy] = useState(false)
+  const [busy, setBusy] = useState(null) // 正在做什麼：'download' 或 'share'
   const [exporting, setExporting] = useState(false)
+  const [toast, showToast] = useToast(2600)
   const exportRef = useRef(null)
 
-  // 下載：在畫面外另外畫一張固定寬度的登機證，用 html2canvas 拍成圖片，再挖出兩側的撕線缺口
-  const download = useCallback(async () => {
-    setBusy(true)
+  // 把登機證拍成圖片：在畫面外另外畫一張固定寬度的登機證，用 html2canvas 拍下來，
+  // 再挖出兩側的撕線缺口（html2canvas 看不懂 CSS 遮罩）
+  const capture = useCallback(async () => {
     setExporting(true)
     try {
       const { default: html2canvas } = await import('html2canvas')
@@ -353,7 +364,6 @@ function PassPanel({ nickname, guardian, onFeedback }) {
       const el = exportRef.current
       const scale = EXPORT_WIDTH / el.offsetWidth
       const canvas = await html2canvas(el, { scale, backgroundColor: null, useCORS: true, logging: false })
-      // html2canvas 看不懂 CSS 遮罩，所以缺口自己挖
       const ctx = canvas.getContext('2d')
       // html2canvas 畫的時候放大過，先把縮放重設，下面的座標才是真正的像素位置
       ctx.setTransform(1, 0, 0, 1, 0, 0)
@@ -365,14 +375,44 @@ function PassPanel({ nickname, guardian, onFeedback }) {
         ctx.arc(x, y, r, 0, Math.PI * 2)
         ctx.fill()
       }
+      return canvas
+    } finally {
+      setExporting(false)
+    }
+  }, [])
+
+  // 下載：顯示圖片，電腦可以直接下載、手機長按儲存
+  const download = async () => {
+    setBusy('download')
+    try {
+      const canvas = await capture()
       setImage(canvas.toDataURL('image/png'))
     } catch {
       setImage('error')
     } finally {
-      setExporting(false)
-      setBusy(false)
+      setBusy(null)
     }
-  }, [])
+  }
+
+  // 分享：用手機的分享選單（Web Share API），可以直接選 Instagram 限時動態
+  const share = async () => {
+    setBusy('share')
+    try {
+      const canvas = await capture()
+      const blob = await new Promise((r) => canvas.toBlob(r, 'image/png'))
+      const file = new File([blob], 'hygge-boarding-pass.png', { type: 'image/png' })
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title: '我的北歐 HYGGE 登機證' })
+      } else {
+        showToast('這個瀏覽器不支援直接分享，請先下載圖片，再到 IG 限時動態上傳')
+      }
+    } catch (err) {
+      // 使用者自己按了取消分享，不用提示
+      if (err?.name !== 'AbortError') showToast('分享失敗了，請先下載圖片再上傳')
+    } finally {
+      setBusy(null)
+    }
+  }
 
   return tidy(
     <div className={styles.passPanel}>
@@ -395,13 +435,14 @@ function PassPanel({ nickname, guardian, onFeedback }) {
         transition={{ duration: 0.8, delay: 1.2 }}
       >
         <div className={styles.buttonRow}>
-          <button type="button" className={`${quiz.glowButton} ${styles.smallButton}`} onClick={download} disabled={busy}>
-            <i className={busy ? 'iconoir-refresh-double' : 'iconoir-download'} aria-hidden="true" />
-            {busy ? '產生中…' : '下載專屬登機證'}
+          <button type="button" className={`${quiz.glowButton} ${styles.smallButton}`} onClick={download} disabled={!!busy}>
+            <i className={busy === 'download' ? 'iconoir-refresh-double' : 'iconoir-download'} aria-hidden="true" />
+            {busy === 'download' ? '產生中…' : '下載 HYGGE 登機證'}
           </button>
-          <button type="button" className={`${quiz.glowButton} ${styles.smallButton}`} onClick={onFeedback}>
-            回饋
-            <i className="iconoir-arrow-down" aria-hidden="true" />
+          {/* 次要按鈕：只有細框，沒有發光 */}
+          <button type="button" className={`${styles.ghostButton} ${styles.smallButton}`} onClick={share} disabled={!!busy}>
+            <i className={busy === 'share' ? 'iconoir-refresh-double' : 'iconoir-instagram'} aria-hidden="true" />
+            {busy === 'share' ? '準備中…' : '分享至限時動態'}
           </button>
         </div>
 
@@ -414,12 +455,26 @@ function PassPanel({ nickname, guardian, onFeedback }) {
             <i className="iconoir-tree" aria-hidden="true" />
             離開前，也別忘了到聖誕樹上掛上你的留言卡呦
           </li>
-          <li>
-            <i className="iconoir-chat-lines" aria-hidden="true" />
-            想花 30 秒聽聽你對這次展覽的心得...
-          </li>
         </ul>
       </motion.div>
+
+      {/* 右下角：回饋引導 */}
+      <motion.div
+        className={styles.feedbackCta}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8, delay: 1.8 }}
+      >
+        <p>想花 30 秒聽聽你對這次展覽的心得...</p>
+        <button type="button" className={`${quiz.glowButton} ${styles.smallButton}`} onClick={onFeedback}>
+          回饋
+          <i className="iconoir-arrow-right" aria-hidden="true" />
+        </button>
+      </motion.div>
+
+      <p className={`${quiz.toast} ${toast ? quiz.toastShow : ''}`} role="status">
+        {toast}
+      </p>
 
       {/* 下載用的登機證：放在畫面外、固定寬度，沒有任何旋轉或漂浮 */}
       {exporting &&
@@ -438,11 +493,11 @@ function PassPanel({ nickname, guardian, onFeedback }) {
           ) : (
             <>
               <img className={styles.modalImage} src={image} alt="你的專屬北歐登機證" />
-              <p className={styles.modalHint}>手機請長按圖片「儲存影像」</p>
-              <a className={`${quiz.glowButton} ${styles.smallButton}`} href={image} download="北歐登機證.png">
+              <a className={`${quiz.glowButton} ${styles.smallButton}`} href={image} download="hygge-boarding-pass.png">
                 <i className="iconoir-download" aria-hidden="true" />
                 下載圖片
               </a>
+              <p className={styles.modalHint}>或長按圖片儲存影像</p>
             </>
           )}
           <button type="button" className={styles.modalClose} onClick={() => setImage(null)} aria-label="關閉">
@@ -456,17 +511,61 @@ function PassPanel({ nickname, guardian, onFeedback }) {
 
 /* ============ 第三頁：極簡回饋表單 ============ */
 function FeedbackForm({ nickname, guardian, onHome, onBack }) {
-  const [score, setScore] = useState(3)
+  // pos：嚕嚕米在滑桿上的位置（1～5，拖曳時可以停在任何地方，所以是小數）
+  const [pos, setPos] = useState(3)
   const [scored, setScored] = useState(false) // 有沒有動過滑桿（必填）
   const [areas, setAreas] = useState([])
   const [message, setMessage] = useState('')
   const [status, setStatus] = useState('idle') // idle / sending / done
   const [error, setError] = useState('')
+  const snapFrame = useRef(null)
 
-  const pickScore = (v) => {
-    setScore(v)
+  // 分數 = 離嚕嚕米最近的整數（超過一半就算下一分）
+  const score = Math.round(pos)
+
+  // 吸附動畫：從現在的位置，在 0.25 秒內緩緩滑到目標整數（先快後慢）
+  const snapTo = useCallback((from, to) => {
+    cancelAnimationFrame(snapFrame.current)
+    const start = performance.now()
+    const tick = (now) => {
+      const t = Math.min((now - start) / 250, 1)
+      const ease = 1 - (1 - t) ** 3
+      setPos(from + (to - from) * ease)
+      if (t < 1) snapFrame.current = requestAnimationFrame(tick)
+    }
+    snapFrame.current = requestAnimationFrame(tick)
+  }, [])
+
+  useEffect(() => () => cancelAnimationFrame(snapFrame.current), [])
+
+  // 拖曳中：跟著手指連續移動，不跳格
+  const onSliderChange = (e) => {
+    cancelAnimationFrame(snapFrame.current)
+    setPos(Number(e.target.value))
     setScored(true)
     setError('')
+  }
+
+  // 放開：吸到最近的整數
+  // 原生的 change 事件只在「放開」時觸發；React 的 onChange 收不到（數值沒變的事件會被略過），
+  // 所以直接在滑桿元素上監聽
+  const sliderRef = useRef(null)
+  useEffect(() => {
+    const el = sliderRef.current
+    if (!el) return
+    const onRelease = () => {
+      const v = Number(el.value)
+      snapTo(v, Math.round(v))
+    }
+    el.addEventListener('change', onRelease)
+    return () => el.removeEventListener('change', onRelease)
+  }, [snapTo])
+
+  // 點刻度數字或按鍵盤：直接滑到那一分
+  const pickScore = (v) => {
+    setScored(true)
+    setError('')
+    snapTo(pos, v)
   }
 
   const toggleArea = (a) => {
@@ -529,26 +628,35 @@ function FeedbackForm({ nickname, guardian, onHome, onBack }) {
 
   return tidy(
     <form className={`${styles.form} ${quiz.glass}`} onSubmit={submit} noValidate>
+      {/* 北歐風點綴：縮小、半透明的精靈躲在表單的角落 */}
+      <img className={`${styles.decor} ${styles.decorTop}`} src={asset('images/snufkin-unlocked.png')} alt="" aria-hidden="true" />
+      <img className={`${styles.decor} ${styles.decorBottom}`} src={asset('images/little-my-unlocked.png')} alt="" aria-hidden="true" />
+
       <button type="button" className={styles.formBack} onClick={onBack} aria-label="回到登機證">
         <i className="iconoir-nav-arrow-up" aria-hidden="true" />
       </button>
 
-      {/* Q1 滿意度：滑桿只會停在 1～5 整數，嚕嚕米當拉桿 */}
+      {/* Q1 滿意度：拖曳時連續滑動，放開後吸到最近的整數；嚕嚕米的頭當拉桿 */}
       <fieldset className={styles.q}>
-        <legend className={styles.qTitle}>
-          這次的書展體驗，您會給幾分呢？<span className={styles.required}>必填</span>
-        </legend>
+        <legend className={styles.qTitle}>這次的書展體驗，您會給幾分呢？</legend>
         <div className={styles.scoreRow}>
           <input
+            ref={sliderRef}
             className={styles.slider}
             type="range"
             min="1"
             max="5"
-            step="1"
-            value={score}
-            onChange={(e) => pickScore(Number(e.target.value))}
-            onPointerDown={() => setScored(true)}
-            style={{ '--thumb': `url(${asset('images/moomin-unlocked.png')})`, '--fill': `${((score - 1) / 4) * 100}%` }}
+            step="0.01"
+            value={pos}
+            onChange={onSliderChange}
+            onKeyDown={(e) => {
+              // 鍵盤：左右鍵一次一分
+              if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') pickScore(Math.max(1, score - 1))
+              else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') pickScore(Math.min(5, score + 1))
+              else return
+              e.preventDefault()
+            }}
+            style={{ '--thumb': `url(${asset('images/moomin-head.png')})`, '--fill': `${((pos - 1) / 4) * 100}%` }}
             aria-label="滿意度，1 到 5 分"
             aria-valuetext={`${score} 分`}
           />
@@ -566,7 +674,7 @@ function FeedbackForm({ nickname, guardian, onHome, onBack }) {
       {/* Q2 最喜歡的區域：可以複選的膠囊按鈕 */}
       <fieldset className={styles.q}>
         <legend className={styles.qTitle}>
-          本次佈展最喜歡的區域？<span className={styles.required}>必填・可複選</span>
+          本次佈展最喜歡的區域？<span className={styles.hint}>可複選</span>
         </legend>
         <div className={styles.pills}>
           {FAVORITE_AREAS.map((a) => (
@@ -583,9 +691,9 @@ function FeedbackForm({ nickname, guardian, onHome, onBack }) {
         </div>
       </fieldset>
 
-      {/* Q3 想說的話：選填 */}
+      {/* Q3 想說的話 */}
       <label className={styles.q}>
-        <span className={styles.qTitle}>歡迎留下任何想說的話或是建議！（選填）</span>
+        <span className={styles.qTitle}>歡迎留下任何想說的話或是建議！</span>
         <textarea
           className={styles.textarea}
           rows={3}

@@ -7,13 +7,15 @@
   position: relative;
 }
 
-/* 深色迷霧底：蓋住後面的冰原，中間微微透一點冷光 */
+/* 深色迷霧底：蓋住後面的冰原，中間透出一團光
+   --mist / --deep 是守護精靈的專屬色（Ending.jsx 依選擇寫入）；還沒選之前是冷灰藍 */
 .mist {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 80% 55% at 50% 42%, rgba(120, 140, 165, 0.35), transparent 70%),
-    linear-gradient(to bottom, rgba(18, 24, 34, 0.86), rgba(28, 36, 48, 0.94));
+    radial-gradient(ellipse 85% 55% at 50% 40%, rgba(var(--mist, 120, 140, 165), 0.42), transparent 72%),
+    radial-gradient(ellipse 70% 40% at 80% 95%, rgba(var(--mist, 120, 140, 165), 0.22), transparent 70%),
+    linear-gradient(to bottom, rgba(var(--deep, 18, 24, 34), 0.9), rgba(var(--deep, 18, 24, 34), 0.97));
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
 }
@@ -143,8 +145,9 @@
     translateZ(calc(var(--abs) * -70px))
     rotateY(calc(var(--offset) * -32deg))
     scale(0.75);
-  opacity: calc(0.5 - (var(--abs) - 1) * 0.5);
-  filter: grayscale(1);
+  /* 旁邊的精靈保持彩色，只是壓暗一半（像蓋了一層黑紗），焦點留給中間那隻 */
+  opacity: calc(1 - (var(--abs) - 1));
+  filter: brightness(0.45) saturate(0.85);
   transition:
     transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
     opacity 0.6s ease,
@@ -156,7 +159,7 @@
   z-index: 2;
   transform: translateX(0) translateZ(0) rotateY(0) scale(1.25);
   opacity: 1;
-  filter: drop-shadow(0 0 14px rgba(var(--color-glow), 0.85));
+  filter: brightness(1) saturate(1) drop-shadow(0 0 14px rgba(var(--color-glow), 0.85));
   cursor: default;
 }
 
@@ -244,7 +247,11 @@
   display: grid;
   place-items: center;
   overflow: hidden;
-  background: radial-gradient(ellipse at 50% 45%, rgba(70, 82, 98, 0.6), rgba(10, 14, 20, 0.95) 75%);
+  background: radial-gradient(
+    ellipse at 50% 45%,
+    rgba(var(--mist, 70, 82, 98), 0.55),
+    rgba(var(--deep, 10, 14, 20), 0.96) 75%
+  );
 }
 
 .chargeCow {
@@ -323,20 +330,22 @@
 }
 
 /* ---------- 第二頁之二：登機證 ---------- */
+/* 底部留 120px 給右下角的回饋引導（約 pb-24 再加一點） */
 .passPanel {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(12px, 2cqh, 18px);
   height: 100%;
   padding: calc(clamp(18px, 3.5cqh, 36px) + env(safe-area-inset-top)) var(--space-m)
-    calc(clamp(14px, 3cqh, 28px) + env(safe-area-inset-bottom));
+    calc(120px + env(safe-area-inset-bottom));
 }
 
-/* 卡片的大小：高度最多佔畫面 60%，寬度依 9:16 換算 */
+/* 卡片的大小：高度最多佔畫面 60%，寬度依 9:16 換算；
+   矮手機上要扣掉下面按鈕、提示和回饋區的高度（約 330px），所以取比較小的那個 */
 .passWrap {
   flex: none;
-  height: min(60cqh, 560px);
+  height: min(60cqh, calc(100cqh - 330px), 560px);
   aspect-ratio: 9 / 16;
   container-type: inline-size;
 }
@@ -389,6 +398,18 @@
   mask:
     radial-gradient(circle var(--notch-r) at 0 var(--notch-y), transparent 98%, #000) left / 51% 100% no-repeat,
     radial-gradient(circle var(--notch-r) at 100% var(--notch-y), transparent 98%, #000) right / 51% 100% no-repeat;
+}
+
+/* 精靈專屬色的淡淡暈染：左上、右下各一團，很淡（約 12%～16%），不影響文字閱讀 */
+.passTint {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(var(--tint), 0.16), rgba(var(--tint), 0) 55%),
+    radial-gradient(circle at 85% 88%, rgba(var(--tint), 0.14), rgba(var(--tint), 0) 50%),
+    radial-gradient(circle at 50% 42%, rgba(var(--tint), 0.08), rgba(var(--tint), 0) 60%);
 }
 
 /* 質感暗色邊線：內縮一圈的細框 */
@@ -530,17 +551,65 @@
 }
 
 /* ---------- 下載、回饋按鈕與現場提示 ---------- */
+/* 按鈕和提示：和登機證之間拉開距離，不要貼著卡片 */
 .passActions {
   display: flex;
   flex-direction: column;
-  gap: clamp(10px, 1.8cqh, 16px);
+  gap: clamp(14px, 2.4cqh, 20px);
   width: 100%;
+  margin-top: clamp(20px, 3.6cqh, 32px);
+}
+
+/* 次要按鈕：只有細框、沒有發光 */
+.ghostButton {
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+.ghostButton:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* 右下角：回饋引導（一句話＋按鈕，靠右對齊） */
+.feedbackCta {
+  position: absolute;
+  right: var(--space-m);
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  max-width: 70%;
+  text-align: right;
+}
+
+.feedbackCta p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+  opacity: 0.75;
 }
 
 .buttonRow {
   display: flex;
   justify-content: center;
   gap: 10px;
+}
+
+/* 兩顆按鈕並排：字小一點、不換行，360px 寬的手機也放得下 */
+.buttonRow .smallButton {
+  padding: 0 12px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.buttonRow .smallButton i {
+  font-size: 15px;
 }
 
 .smallButton {
@@ -568,7 +637,7 @@
   padding: 0;
   list-style: none;
   font-size: 13px;
-  line-height: 1.6;
+  line-height: 1.7;
   opacity: 0.9;
 }
 
@@ -613,9 +682,9 @@
 
 .modalHint {
   margin: 0;
-  font-size: 14px;
-  letter-spacing: 0.06em;
-  opacity: 0.9;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  opacity: 0.55;
 }
 
 .modalClose {
@@ -634,13 +703,45 @@
 }
 
 /* ============ 第三頁：回饋表單 ============ */
+/* 題目之間的間距：高的手機 32px（mb-8），矮的手機自動收到 18px */
 .form {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: clamp(10px, 1.8cqh, 16px);
+  gap: clamp(14px, 3.6cqh, 32px);
   margin: calc(clamp(52px, 8cqh, 72px) + env(safe-area-inset-top)) var(--space-m) 0;
-  padding: clamp(16px, 2.6cqh, 22px) 18px;
+  padding: clamp(18px, 3cqh, 26px) 20px;
+}
+
+/* 北歐風點綴：縮小、半透明的精靈躲在表單角落 */
+.decor {
+  position: absolute;
+  height: 72px;
+  width: auto;
+  opacity: 0.2;
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.decorTop {
+  top: -30px;
+  left: -6px;
+  rotate: -8deg;
+}
+
+.decorBottom {
+  right: -4px;
+  bottom: -26px;
+  rotate: 6deg;
+}
+
+/* 標題旁的小補充（例如「可複選」） */
+.hint {
+  margin-left: 6px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  opacity: 0.55;
 }
 
 .formBack {
@@ -673,14 +774,6 @@
   font-size: 15px;
   line-height: 1.6;
   letter-spacing: 0.04em;
-}
-
-.required {
-  margin-left: 6px;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  color: #ffe2a3;
-  opacity: 0.9;
 }
 
 /* ---------- Q1：嚕嚕米滑桿 ---------- */
@@ -722,8 +815,9 @@
   margin-top: -17px;
   border: 2px solid #fff;
   border-radius: 50%;
-  background: #f4f1ea var(--thumb) 50% 6% / 150% auto no-repeat;
+  background: #f4f1ea var(--thumb) center / cover no-repeat; /* 嚕嚕米的頭（moomin-head.png） */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35), 0 0 12px rgba(var(--color-glow), 0.5);
+  cursor: grab;
 }
 
 .slider::-moz-range-thumb {
@@ -731,8 +825,9 @@
   height: 40px;
   border: 2px solid #fff;
   border-radius: 50%;
-  background: #f4f1ea var(--thumb) 50% 6% / 150% auto no-repeat;
+  background: #f4f1ea var(--thumb) center / cover no-repeat;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35), 0 0 12px rgba(var(--color-glow), 0.5);
+  cursor: grab;
 }
 
 .scoreValue {
@@ -810,6 +905,7 @@
   line-height: 1.6;
   resize: none;
   outline: none;
+  height: clamp(64px, 11cqh, 104px); /* 矮手機上矮一點，整張表單才放得下 */
 }
 
 .textarea:focus {
