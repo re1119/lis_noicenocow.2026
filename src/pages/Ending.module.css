@@ -775,14 +775,17 @@
   cursor: pointer;
 }
 
-/* ============ 第三頁：回饋表單 ============ */
-/* 題目之間的間距：高的手機 32px（mb-8），矮的手機自動收到 18px */
+/* ============ 第三頁：回饋表單 ============
+   間距規則（全部用同一套，畫面才整齊）：
+     題目 → 它的選項：12px
+     題與題之間：高的手機 30px，矮的手機自動收到 16px
+   字的層級：題號（淡、英文小字）→ 題目（15px）→ 選項（13px） */
 .form {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: clamp(14px, 3.6cqh, 32px);
-  margin: calc(clamp(52px, 8cqh, 72px) + env(safe-area-inset-top)) var(--space-m) 0;
+  gap: clamp(16px, 3.4cqh, 30px);
+  margin: calc(clamp(48px, 7.5cqh, 70px) + env(safe-area-inset-top)) var(--space-m) 0;
   padding: clamp(18px, 3cqh, 26px) 20px;
 }
 
@@ -809,17 +812,9 @@
   rotate: 6deg;
 }
 
-/* 標題旁的小補充（例如「可複選」） */
-.hint {
-  margin-left: 6px;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  opacity: 0.55;
-}
-
 .formBack {
   position: absolute;
-  top: -52px;
+  top: -48px;
   left: 50%;
   translate: -50% 0;
   display: grid;
@@ -833,31 +828,62 @@
   cursor: pointer;
 }
 
+/* 一題 = 題目＋選項，中間固定 12px */
 .q {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   margin: 0;
-  padding: 0;
-  border: 0;
 }
 
 .qTitle {
-  padding: 0;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  margin: 0;
   font-size: 15px;
   line-height: 1.6;
   letter-spacing: 0.04em;
 }
 
+/* 題號：淡淡的英文小字 */
+.qNum {
+  flex: none;
+  margin-right: 8px;
+  font-family: var(--font-latin);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: #ffe2a3;
+  opacity: 0.7;
+}
+
+/* 標題旁的小補充（例如「可複選」） */
+.hint {
+  margin-left: 6px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  opacity: 0.55;
+}
+
 /* ---------- Q1：嚕嚕米滑桿 ---------- */
 .scoreRow {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 12px;
 }
 
-.slider {
+/* 滑桿外框：上方留 24px 給站在軌道上的嚕嚕米（嚕嚕米可以稍微高出外框） */
+.sliderWrap {
+  position: relative;
   flex: 1;
+  min-width: 0;
+  padding-top: 24px;
+}
+
+.slider {
+  display: block;
+  width: 100%;
   height: 44px;
   margin: 0;
   background: transparent;
@@ -880,32 +906,49 @@
   background: linear-gradient(to right, #ffe2a3 var(--fill), rgba(255, 255, 255, 0.22) var(--fill));
 }
 
-/* 拉桿：嚕嚕米的頭 */
+/* 原生圓鈕：透明，只負責「被手指抓住」；寬 36px（嚕嚕米的寬度），高 44px（手指好抓） */
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 40px;
-  height: 40px;
-  margin-top: -17px;
-  border: 2px solid #fff;
-  border-radius: 50%;
-  background: #f4f1ea var(--thumb) center / cover no-repeat; /* 嚕嚕米的頭（moomin-head.png） */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35), 0 0 12px rgba(var(--color-glow), 0.5);
+  width: 36px;
+  height: 44px;
+  margin-top: -19px;
+  border: 0;
+  background: transparent;
   cursor: grab;
 }
 
 .slider::-moz-range-thumb {
-  width: 40px;
-  height: 40px;
-  border: 2px solid #fff;
-  border-radius: 50%;
-  background: #f4f1ea var(--thumb) center / cover no-repeat;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35), 0 0 12px rgba(var(--color-glow), 0.5);
+  width: 36px;
+  height: 44px;
+  border: 0;
+  background: transparent;
   cursor: grab;
+}
+
+/* 鍵盤操作時，焦點框畫在整條滑桿外圍 */
+.slider:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* 整隻嚕嚕米：腳踩在軌道上，以腳底為支點搖擺（傾斜角度由 Ending.jsx 的彈簧控制） */
+.moomin {
+  position: absolute;
+  bottom: 14px; /* 軌道在滑桿高度的正中間（22px），腳底踩在軌道上方一點 */
+  height: 58px;
+  width: auto;
+  transform-origin: 50% 100%;
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.35)) drop-shadow(0 0 10px rgba(var(--color-glow), 0.35));
 }
 
 .scoreValue {
   flex: none;
   width: 56px;
+  padding-bottom: 10px; /* 和軌道對齊 */
   font-family: var(--font-title);
   font-size: 18px;
   text-align: right;
@@ -914,12 +957,12 @@
 
 /* 刻度 1～5：也可以直接點數字
    寬度和滑桿一樣（右邊扣掉分數 56px＋間距 12px）；
-   嚕嚕米直徑 40px，中心最左在 20px、最右在寬度 −20px，所以左右各內縮 10px（數字按鈕寬 20px） */
+   圓鈕寬 36px，中心最左在 18px、最右在寬度 −18px，所以左右各內縮 8px（數字按鈕寬 20px） */
 .ticks {
   display: flex;
   justify-content: space-between;
-  margin: -6px 68px 0 0;
-  padding: 0 10px;
+  margin: -8px 68px 0 0;
+  padding: 0 8px;
 }
 
 .ticks button {
@@ -946,7 +989,7 @@
 }
 
 .pill {
-  min-height: 36px;
+  min-height: 34px;
   padding: 0 14px;
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-pill);
@@ -978,7 +1021,7 @@
   line-height: 1.6;
   resize: none;
   outline: none;
-  height: clamp(64px, 11cqh, 104px); /* 矮手機上矮一點，整張表單才放得下 */
+  height: clamp(48px, 9cqh, 104px); /* 矮手機上矮一點，整張表單才放得下 */
 }
 
 .textarea:focus {

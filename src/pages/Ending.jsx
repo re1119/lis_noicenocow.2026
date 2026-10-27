@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useSpring } from 'framer-motion'
 import { FAVORITE_AREAS, GUARDIANS, WEB3FORMS_KEY } from '../data/ending.js'
 import { useToast } from '../hooks/useToast.js'
 import quiz from '../styles/quiz.module.css'
@@ -527,33 +527,63 @@ function FeedbackForm({ nickname, guardian, onHome, onBack }) {
   const [areas, setAreas] = useState([])
   const [message, setMessage] = useState('')
   const [status, setStatus] = useState('idle') // idle / sending / done
-  const [error, setError] = useState('')
+  // 錯誤提示：用浮在表單中央的小提示（幾秒後自己消失），不佔表單的位置
+  const [error, showError] = useToast(2800)
   const snapFrame = useRef(null)
 
   // 分數 = 離嚕嚕米最近的整數（超過一半就算下一分）
   const score = Math.round(pos)
 
-  // 吸附動畫：從現在的位置，在 0.25 秒內緩緩滑到目標整數（先快後慢）
-  const snapTo = useCallback((from, to) => {
-    cancelAnimationFrame(snapFrame.current)
-    const start = performance.now()
-    const tick = (now) => {
-      const t = Math.min((now - start) / 250, 1)
-      const ease = 1 - (1 - t) ** 3
-      setPos(from + (to - from) * ease)
-      if (t < 1) snapFrame.current = requestAnimationFrame(tick)
-    }
-    snapFrame.current = requestAnimationFrame(tick)
-  }, [])
+  // ---------- 嚕嚕米被拖著走時的搖擺 ----------
+  // tilt：嚕嚕米身體的傾斜角度。用彈簧（阻尼很小）跟隨目標角度，所以停下來時會像不倒翁一樣晃幾下
+  // 拖得越快傾得越多；往右拖身體往左倒（腳先走、身體被拖著），停下來 70ms 後目標回到 0
+  const tilt = useSpring(0, { stiffness: 260, damping: 7, mass: 0.6 })
+  const lastPos = useRef(3)
+  const settle = useRef(null)
+  const wobble = useCallback(
+    (v) => {
+      const d = v - lastPos.current
+      lastPos.current = v
+      tilt.set(Math.max(-20, Math.min(20, -d * 140))) // 彈簧會再多晃一點，實際最大約 28 度
+      clearTimeout(settle.current)
+      settle.current = setTimeout(() => tilt.set(0), 70)
+    },
+    [tilt],
+  )
 
-  useEffect(() => () => cancelAnimationFrame(snapFrame.current), [])
+  // 吸附動畫：從現在的位置，在 0.25 秒內緩緩滑到目標整數（先快後慢），一路帶著搖擺
+  const snapTo = useCallback(
+    (from, to) => {
+      cancelAnimationFrame(snapFrame.current)
+      const start = performance.now()
+      const tick = (now) => {
+        const t = Math.min((now - start) / 250, 1)
+        const ease = 1 - (1 - t) ** 3
+        const v = from + (to - from) * ease
+        setPos(v)
+        wobble(v)
+        if (t < 1) snapFrame.current = requestAnimationFrame(tick)
+      }
+      snapFrame.current = requestAnimationFrame(tick)
+    },
+    [wobble],
+  )
+
+  useEffect(
+    () => () => {
+      cancelAnimationFrame(snapFrame.current)
+      clearTimeout(settle.current)
+    },
+    [],
+  )
 
   // 拖曳中：跟著手指連續移動，不跳格
   const onSliderChange = (e) => {
+    const v = Number(e.target.value)
     cancelAnimationFrame(snapFrame.current)
-    setPos(Number(e.target.value))
+    setPos(v)
+    wobble(v)
     setScored(true)
-    setError('')
   }
 
   // 放開：吸到最近的整數
@@ -574,20 +604,18 @@ function FeedbackForm({ nickname, guardian, onHome, onBack }) {
   // 點刻度數字或按鍵盤：直接滑到那一分
   const pickScore = (v) => {
     setScored(true)
-    setError('')
     snapTo(pos, v)
   }
 
   const toggleArea = (a) => {
     setAreas((list) => (list.includes(a) ? list.filter((x) => x !== a) : [...list, a]))
-    setError('')
   }
 
   const submit = async (e) => {
     e.preventDefault()
-    if (!scored) return setError('請先拖動嚕嚕米，給這次的書展打個分數')
-    if (areas.length === 0) return setError('請至少選一個最喜歡的區域')
-    if (WEB3FORMS_KEY === 'YOUR_WEB3FORMS_KEY') return setError('回饋表單還沒設定好，請告訴現場工作人員，謝謝你！')
+    if (!scored) return showError('請先拖動嚕嚕米，給這次的書展打個分數')
+    if (areas.length === 0) return showError('請至少選一個最喜歡的區域')
+    if (WEB3FORMS_KEY === 'YOUR_WEB3FORMS_KEY') return showError('回饋表單還沒設定好，請告訴現場工作人員，謝謝你！')
 
     setStatus('sending')
     try {
@@ -609,7 +637,7 @@ function FeedbackForm({ nickname, guardian, onHome, onBack }) {
       setStatus('done')
     } catch {
       setStatus('idle')
-      setError('送出失敗了，請確認網路後再試一次')
+      showError('送出失敗了，請確認網路後再試一次')
     }
   }
 
@@ -646,30 +674,45 @@ function FeedbackForm({ nickname, guardian, onHome, onBack }) {
         <i className="iconoir-nav-arrow-up" aria-hidden="true" />
       </button>
 
-      {/* Q1 滿意度：拖曳時連續滑動，放開後吸到最近的整數；嚕嚕米的頭當拉桿 */}
-      <fieldset className={styles.q}>
-        <legend className={styles.qTitle}>這次的書展體驗，您會給幾分呢？</legend>
+      {/* 題目用一般的 div＋role="group"（不用 fieldset / legend：legend 不吃間距，標題會貼著選項） */}
+
+      {/* Q1 滿意度：拖曳時連續滑動，放開後吸到最近的整數；整隻嚕嚕米當拉桿，被拖著走會搖擺 */}
+      <div className={styles.q} role="group" aria-labelledby="q1-title">
+        <p id="q1-title" className={styles.qTitle}>
+          <span className={styles.qNum}>01</span>這次的書展體驗，您會給幾分呢？
+        </p>
         <div className={styles.scoreRow}>
-          <input
-            ref={sliderRef}
-            className={styles.slider}
-            type="range"
-            min="1"
-            max="5"
-            step="0.01"
-            value={pos}
-            onChange={onSliderChange}
-            onKeyDown={(e) => {
-              // 鍵盤：左右鍵一次一分
-              if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') pickScore(Math.max(1, score - 1))
-              else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') pickScore(Math.min(5, score + 1))
-              else return
-              e.preventDefault()
-            }}
-            style={{ '--thumb': `url(${asset('images/moomin-head.png')})`, '--fill': `${((pos - 1) / 4) * 100}%` }}
-            aria-label="滿意度，1 到 5 分"
-            aria-valuetext={`${score} 分`}
-          />
+          <div className={styles.sliderWrap}>
+            {/* 原生滑桿負責拖曳（圓鈕透明），嚕嚕米疊在上面跟著移動 */}
+            <input
+              ref={sliderRef}
+              className={styles.slider}
+              type="range"
+              min="1"
+              max="5"
+              step="0.01"
+              value={pos}
+              onChange={onSliderChange}
+              onKeyDown={(e) => {
+                // 鍵盤：左右鍵一次一分
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') pickScore(Math.max(1, score - 1))
+                else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') pickScore(Math.min(5, score + 1))
+                else return
+                e.preventDefault()
+              }}
+              style={{ '--fill': `${((pos - 1) / 4) * 100}%` }}
+              aria-label="滿意度，1 到 5 分"
+              aria-valuetext={`${score} 分`}
+            />
+            <motion.img
+              className={styles.moomin}
+              src={asset('images/moomin-unlocked.png')}
+              alt=""
+              aria-hidden="true"
+              draggable={false}
+              style={{ left: `calc(18px + ${(pos - 1) / 4} * (100% - 36px))`, x: '-50%', rotate: tilt }}
+            />
+          </div>
           <span className={styles.scoreValue}>{scored ? `${score} 分` : '－'}</span>
         </div>
         <div className={styles.ticks} aria-hidden="true">
@@ -679,13 +722,13 @@ function FeedbackForm({ nickname, guardian, onHome, onBack }) {
             </button>
           ))}
         </div>
-      </fieldset>
+      </div>
 
       {/* Q2 最喜歡的區域：可以複選的膠囊按鈕 */}
-      <fieldset className={styles.q}>
-        <legend className={styles.qTitle}>
-          本次佈展最喜歡的區域？<span className={styles.hint}>可複選</span>
-        </legend>
+      <div className={styles.q} role="group" aria-labelledby="q2-title">
+        <p id="q2-title" className={styles.qTitle}>
+          <span className={styles.qNum}>02</span>本次佈展最喜歡的區域？<span className={styles.hint}>可複選</span>
+        </p>
         <div className={styles.pills}>
           {FAVORITE_AREAS.map((a) => (
             <button
@@ -699,11 +742,13 @@ function FeedbackForm({ nickname, guardian, onHome, onBack }) {
             </button>
           ))}
         </div>
-      </fieldset>
+      </div>
 
       {/* Q3 想說的話 */}
       <label className={styles.q}>
-        <span className={styles.qTitle}>歡迎留下任何想說的話或是建議！</span>
+        <span className={styles.qTitle}>
+          <span className={styles.qNum}>03</span>歡迎留下任何想說的話或是建議！
+        </span>
         <textarea
           className={styles.textarea}
           rows={3}
@@ -713,7 +758,8 @@ function FeedbackForm({ nickname, guardian, onHome, onBack }) {
         />
       </label>
 
-      <p className={styles.error} role="alert">
+      {/* 錯誤提示：浮在表單中央，平常不佔位置（矮手機上整張表單才放得下） */}
+      <p className={`${quiz.toast} ${error ? quiz.toastShow : ''}`} role="alert">
         {error}
       </p>
 
