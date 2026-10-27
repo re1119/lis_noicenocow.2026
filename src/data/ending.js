@@ -4,7 +4,8 @@
 // quote：登機證上的專屬金句
 // 色彩系統（RGB 三個數字，方便在 CSS 裡調透明度）：
 //   mist：Phase 2 背景迷霧的主色（飽和、偏深）；deep：迷霧最暗的底色
-//   tint：登機證卡片裡淡淡的暈染色（實際只用約 10%～14% 的透明度）
+//   tint：登機證卡片裡淡淡的暈染色（實際只用約 10%～14% 的透明度）；靈魂成分表的進度條也用這個顏色
+// traits：登機證底部的「北歐靈魂成分表」，特質名稱一律 6 個字
 export const GUARDIANS = [
   {
     id: 'moomin',
@@ -15,6 +16,11 @@ export const GUARDIANS = [
     mist: '214, 190, 132',
     deep: '44, 38, 28',
     tint: '236, 204, 120',
+    traits: [
+      { name: '呼嘎呼嘎指數', value: 95 },
+      { name: '發呆放空時長', value: 85 },
+      { name: '冬眠賴床天數', value: 90 },
+    ],
   },
   {
     id: 'snufkin',
@@ -25,6 +31,11 @@ export const GUARDIANS = [
     mist: '120, 152, 124',
     deep: '22, 34, 28',
     tint: '128, 168, 120',
+    traits: [
+      { name: '說走就走衝動', value: 99 },
+      { name: '四海為家能力', value: 90 },
+      { name: '極簡生活執念', value: 80 },
+    ],
   },
   {
     id: 'little-my',
@@ -35,6 +46,11 @@ export const GUARDIANS = [
     mist: '178, 104, 100',
     deep: '42, 24, 26',
     tint: '232, 140, 110',
+    traits: [
+      { name: '古靈精怪程度', value: 100 },
+      { name: '直球對決勇氣', value: 95 },
+      { name: '搞破壞行動力', value: 85 },
+    ],
   },
   {
     id: 'amaka',
@@ -45,6 +61,11 @@ export const GUARDIANS = [
     mist: '156, 136, 212',
     deep: '32, 26, 52',
     tint: '184, 140, 228',
+    traits: [
+      { name: '自帶仙氣濃度', value: 99 },
+      { name: '點石成金魔法', value: 90 },
+      { name: '浪漫幻想頻率', value: 85 },
+    ],
   },
   {
     id: 'cow',
@@ -56,6 +77,11 @@ export const GUARDIANS = [
     mist: '132, 168, 198',
     deep: '20, 30, 42',
     tint: '120, 168, 214',
+    traits: [
+      { name: '慢條斯理步調', value: 95 },
+      { name: '毛茸茸溫暖度', value: 100 },
+      { name: '腳踏實地固執', value: 90 },
+    ],
   },
 ]
 

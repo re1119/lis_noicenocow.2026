@@ -295,8 +295,9 @@ function PassAndFeedback({ nickname, guardian, onHome }) {
   )
 }
 
-/* ---------- 登機證本體（畫面上和下載用的是同一個元件） ---------- */
-function BoardingPass({ nickname, guardian, date }) {
+/* ---------- 登機證本體（畫面上和下載用的是同一個元件） ----------
+   animated：畫面上的那張要播動畫（進度條長出來）；下載用的那張不播 */
+function BoardingPass({ nickname, guardian, date, animated = false }) {
   return (
     <div
       className={styles.pass}
@@ -331,15 +332,24 @@ function BoardingPass({ nickname, guardian, date }) {
       {/* 撕線：兩側的半圓缺口用遮罩挖，中間是淡淡的虛線 */}
       <div className={styles.passTear} aria-hidden="true" />
 
+      {/* 撕線下方：北歐靈魂成分表（三項特質＋進度條，顏色是精靈的專屬色） */}
       <div className={styles.passStub}>
-        <div>
-          <span className={styles.passLabel}>CLASS</span>
-          <span className={styles.passStubValue}>FIRST</span>
-        </div>
-        <div>
-          <span className={styles.passLabel}>DESTINATION</span>
-          <span className={styles.passStubValue}>HYGGE</span>
-        </div>
+        <p className={styles.soulTitle}>SOUL INGREDIENTS // 靈魂成分</p>
+        <ul className={styles.soulList}>
+          {guardian.traits.map((t, i) => (
+            <li key={t.name} className={styles.soulRow}>
+              <span className={styles.soulName}>{t.name}</span>
+              <span className={styles.soulTrack} aria-hidden="true">
+                {/* animated：畫面上從 0 長到數值；下載用的那張直接畫滿，不然會拍到長到一半的樣子 */}
+                <span
+                  className={`${styles.soulFill} ${animated ? styles.soulGrow : ''}`}
+                  style={{ width: `${t.value}%`, '--i': i }}
+                />
+              </span>
+              <span className={styles.soulValue}>{t.value}%</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   )
@@ -424,7 +434,7 @@ function PassPanel({ nickname, guardian, onFeedback }) {
         transition={{ duration: 1.6, ease: [0.2, 0.8, 0.2, 1] }}
       >
         <div className={styles.passFloat}>
-          <BoardingPass nickname={nickname} guardian={guardian} date={date} />
+          <BoardingPass nickname={nickname} guardian={guardian} date={date} animated />
         </div>
       </motion.div>
 

@@ -521,26 +521,99 @@
 }
 
 /* 存根：缺口下方 */
+/* ---------- 撕線下方：北歐靈魂成分表 ----------
+   範圍：撕線下 5cqi 到卡片底部 8cqi，內容在這段空間裡垂直置中
+   顏色：文字用深灰（stone-700），軌道淺灰（stone-200），進度條是精靈的專屬色 --tint */
 .passStub {
   position: absolute;
-  left: 8cqi;
-  right: 8cqi;
+  left: 9cqi;
+  right: 9cqi;
   top: calc(var(--notch-y) + 5cqi);
+  bottom: 8cqi;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: center;
   text-align: left;
 }
 
-.passStub > div:last-child {
-  text-align: right;
+.soulTitle {
+  margin: 0 0 3.6cqi;
+  font-size: 2.5cqi;
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  color: #3b3128;
+  opacity: 0.45;
 }
 
-.passStubValue {
-  display: block;
-  margin-top: 1cqi;
-  font-size: 5cqi;
-  font-weight: 900;
-  letter-spacing: 0.1em;
+.soulList {
+  display: flex;
+  flex-direction: column;
+  gap: 3cqi;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 每一行：特質名稱｜細軌道｜百分比 */
+.soulRow {
+  display: flex;
+  align-items: center;
+  font-size: 3.4cqi;
+  line-height: 1;
+  color: #44403c;
+}
+
+/* 名稱固定寬度（6 個字），三條軌道的起點才會對齊 */
+.soulName {
+  flex: none;
+  width: 23cqi;
+  font-family: var(--font-body);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.soulTrack {
+  position: relative;
+  flex: 1;
+  height: 1.2cqi;
+  margin: 0 3cqi;
+  overflow: hidden;
+  border-radius: 1cqi;
+  background: #e7e5e4;
+}
+
+.soulFill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-radius: 1cqi;
+  background: rgb(var(--tint));
+}
+
+/* 畫面上：登機證飄進來之後，三條進度條依序從 0 長出來 */
+.soulGrow {
+  transform-origin: left center;
+  animation: soulGrow 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(1.8s + var(--i) * 0.18s);
+}
+
+@keyframes soulGrow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* 百分比：等寬字體，數字位數不同也能對齊 */
+.soulValue {
+  flex: none;
+  width: 8cqi;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
+  font-size: 3.2cqi;
+  text-align: right;
 }
 
 /* 存根佔掉卡片底部：卡片高 = 寬 × 16/9 ≈ 177.8cqi，缺口在 72%（128cqi）
