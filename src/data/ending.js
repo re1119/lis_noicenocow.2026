@@ -11,7 +11,7 @@ export const GUARDIANS = [
     id: 'moomin',
     name: '嚕嚕米',
     img: 'images/moomin-unlocked.png',
-    quote: '你的靈魂充滿溫暖，Hygge 是你的專屬魔法。',
+    quote: '你的靈魂充滿溫暖，HYGGE 是你的專屬魔法。',
     // 晨霧暖白／奶油黃
     mist: '214, 190, 132',
     deep: '44, 38, 28',
@@ -57,10 +57,11 @@ export const GUARDIANS = [
     name: '阿瑪卡仙子',
     img: 'images/amaka-unlocked.png',
     quote: '你的心中住著童話，日常也能點石成金。',
-    // 夢幻極光紫：薰衣草紫／粉紫
-    mist: '156, 136, 212',
-    deep: '32, 26, 52',
-    tint: '184, 140, 228',
+    // 夢幻極光紫：調淡成輕透的極淡粉紫（原本 156,136,212 太深、太飽和，蓋過了其他顏色）
+    // deep 也改成幾乎是中性的深灰，只帶一點點紫，背景不會整片發紫
+    mist: '214, 198, 236',
+    deep: '40, 38, 52',
+    tint: '214, 192, 240',
     traits: [
       { name: '自帶仙氣濃度', value: 99 },
       { name: '點石成金魔法', value: 90 },
@@ -85,13 +86,13 @@ export const GUARDIANS = [
   },
 ]
 
-// 回饋表單 Q2：最喜歡的區域（照字數由少到多排列）
+// 回饋表單 Q2：最喜歡的區域（照展場動線的順序排列）
 export const FAVORITE_AREAS = [
-  '留言樹回饋區',
-  '北歐金句抽籤',
   '主題選書陳列區',
+  '北歐金句抽籤區',
   '心理測驗翻卡選書指引',
-  '冰上沒有牛：圖鑑闖關網頁',
+  '精靈圖鑑蒐集闖關網頁',
+  'HYGGE 時刻手寫留言區',
 ]
 
 // Web3Forms 的存取金鑰：到 https://web3forms.com 輸入要收信的 email 就會寄來

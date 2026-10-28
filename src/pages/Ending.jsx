@@ -463,7 +463,7 @@ function PassPanel({ nickname, guardian, onFeedback }) {
           </li>
           <li>
             <i className="iconoir-tree" aria-hidden="true" />
-            離開前，也別忘了到聖誕樹上掛上你的留言卡呦
+            離開前，也別忘了在留言板寫下你的 HYGGE 時刻呦
           </li>
         </ul>
       </motion.div>

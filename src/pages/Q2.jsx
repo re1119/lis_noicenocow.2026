@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import QuizStage from '../components/QuizStage.jsx'
 import QuizIntro from '../components/QuizIntro.jsx'
 import SuccessFigure from '../components/SuccessFigure.jsx'
+import { progressLabel, solvedCount } from '../components/ProgressButton.jsx'
 import { useToast } from '../hooks/useToast.js'
 import quiz from '../styles/quiz.module.css'
 import styles from './Q2.module.css'
@@ -31,9 +32,9 @@ export default function Q2({ path, active, navigate, onSolved }) {
       path={path}
       active={active}
       navigate={navigate}
-      renderStep={(step, { screenActive, goQuestion, goSuccess, goMenu }) => {
+      renderStep={(step, { screenActive, goQuestion, goSuccess, goMenu, goEnding }) => {
         if (step === 'question') return <Question onBack={goMenu} onCorrect={goSuccess} />
-        if (step === 'success') return <Success active={screenActive} onSolved={onSolved} onDone={goMenu} />
+        if (step === 'success') return <Success active={screenActive} onSolved={onSolved} onDone={goMenu} onEnding={goEnding} />
         return (
           <QuizIntro
             active={screenActive}
@@ -147,7 +148,7 @@ function Question({ onBack, onCorrect }) {
 }
 
 /* ============ 通關＋反思頁：3D 翻轉卡片 ============ */
-function Success({ active, onSolved, onDone }) {
+function Success({ active, onSolved, onDone, onEnding }) {
   // isFlipped：卡片翻到反面了沒。每次進入通關頁畫面都會重建，所以一定從正面開始
   const [isFlipped, setIsFlipped] = useState(false)
   const [choice, setChoice] = useState(null)
@@ -158,17 +159,18 @@ function Success({ active, onSolved, onDone }) {
     if (active) onSolved()
   }, [active, onSolved])
 
-  // 回答反思題後，等 3 秒回到進度頁
+  // 回答反思題後，等 3 秒回到進度頁；四關全破的話直接去結局頁領獎
   useEffect(() => {
     if (!choice) return
-    const timer = setTimeout(onDone, REFLECT_DELAY_MS)
+    const timer = setTimeout(solvedCount('Q2') === 4 ? onEnding : onDone, REFLECT_DELAY_MS)
     return () => clearTimeout(timer)
-  }, [choice, onDone])
+  }, [choice, onDone, onEnding])
 
+  // 這一關沒有底部按鈕，所以進度文案放在作答後的提示裡
   const reflect = (id) => {
     if (choice) return
     setChoice(id)
-    showToast('感謝你的分享！繼續尋寶吧 ~')
+    showToast(`感謝你的分享！${progressLabel('Q2')}`)
   }
 
   return tidy(

@@ -49,6 +49,8 @@ export default function QuizStage({ base, playPath = 'question', label, path, ac
   const goQuestion = useCallback(() => navigate(`${base}/${playPath}`, { replace: true }), [navigate, base, playPath])
   const goSuccess = useCallback(() => navigate(`${base}/success`, { replace: true }), [navigate, base])
   const goMenu = useCallback(() => navigate('/menu'), [navigate])
+  // 四關全破時，通關頁的按鈕直接帶去結局頁領獎
+  const goEnding = useCallback(() => navigate('/ending'), [navigate])
 
   return (
     <section className={quiz.stage} inert={!active} aria-label={label}>
@@ -58,7 +60,7 @@ export default function QuizStage({ base, playPath = 'question', label, path, ac
         style={{ '--enter': shown === entryStep ? '0.8s' : '0s' }}
       >
         {/* screenActive：這個畫面真的在眼前（不是正在淡出、也不是滑走了） */}
-        {renderStep(shown, { screenActive: active && !fading, goQuestion, goSuccess, goMenu })}
+        {renderStep(shown, { screenActive: active && !fading, goQuestion, goSuccess, goMenu, goEnding })}
       </div>
     </section>
   )

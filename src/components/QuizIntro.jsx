@@ -2,10 +2,10 @@ import { useEffect } from 'react'
 import quiz from '../styles/quiz.module.css'
 import { tidy } from '../utils/tidyText.jsx'
 
-// 引導頁是純過場：不能點，停留 5 秒後自動進入題目
-// 計時從畫面「滑到定位」才算：翻頁轉場 1 秒 + 停留 5 秒
+// 引導頁是純過場：不能點，停留 4.5 秒後自動進入題目
+// 計時從畫面「滑到定位」才算：翻頁轉場 1 秒 + 停留 4.5 秒
 const SLIDE_MS = 1000
-const STAY_MS = 5000
+const STAY_MS = 4500
 
 // 自動跳轉的計時器＋畫面底部那條慢慢畫滿的細線（告訴玩家「等一下就會繼續」）
 // Q1～Q3 透過 QuizIntro 使用，Q4 有自己的引導頁，也直接用這兩個

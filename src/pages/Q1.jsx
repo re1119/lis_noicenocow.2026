@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import QuizStage from '../components/QuizStage.jsx'
+import ProgressButton from '../components/ProgressButton.jsx'
 import QuizIntro from '../components/QuizIntro.jsx'
 import SuccessFigure from '../components/SuccessFigure.jsx'
 import quiz from '../styles/quiz.module.css'
@@ -27,9 +28,9 @@ export default function Q1({ path, active, navigate, onSolved }) {
       path={path}
       active={active}
       navigate={navigate}
-      renderStep={(step, { screenActive, goQuestion, goSuccess, goMenu }) => {
+      renderStep={(step, { screenActive, goQuestion, goSuccess, goMenu, goEnding }) => {
         if (step === 'question') return <Question onBack={goMenu} onCorrect={goSuccess} />
-        if (step === 'success') return <Success active={screenActive} onSolved={onSolved} onBack={goMenu} />
+        if (step === 'success') return <Success active={screenActive} onSolved={onSolved} onBack={goMenu} onEnding={goEnding} />
         return (
           <QuizIntro
             active={screenActive}
@@ -83,7 +84,7 @@ function Question({ onBack, onCorrect }) {
         <h2 className={quiz.title}>尋找安徒生銅像</h2>
         <p className={quiz.cluePill}>
           <i className="iconoir-open-book" aria-hidden="true" />
-          《光影北歐》p.87
+          《光影北歐》p.86
         </p>
       </header>
 
@@ -130,7 +131,7 @@ function Question({ onBack, onCorrect }) {
 }
 
 /* ============ 通關回饋頁 ============ */
-function Success({ active, onSolved, onBack }) {
+function Success({ active, onSolved, onBack, onEnding }) {
   // 進入通關頁就記錄「第一關已答對」，並解鎖阿瑪卡仙子
   useEffect(() => {
     if (active) onSolved()
@@ -154,14 +155,14 @@ function Success({ active, onSolved, onBack }) {
         </p>
       </article>
 
-      <button
-        type="button"
-        className={`${styles.homeButton} ${quiz.glowButton} ${quiz.rise}`}
+      {/* 按鈕文字跟著破關進度改變；四關全破時直接去結局頁領獎 */}
+      <ProgressButton
+        current="Q1"
+        className={`${styles.homeButton} ${quiz.rise}`}
         style={{ '--delay': '0.45s' }}
-        onClick={onBack}
-      >
-        回到尋寶地圖
-      </button>
+        onMenu={onBack}
+        onEnding={onEnding}
+      />
     </div>
   )
 }

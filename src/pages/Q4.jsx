@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import QuizStage from '../components/QuizStage.jsx'
+import ProgressButton from '../components/ProgressButton.jsx'
 import { IntroProgress, useIntroTimer } from '../components/QuizIntro.jsx'
 import { useToast } from '../hooks/useToast.js'
 import quiz from '../styles/quiz.module.css'
@@ -66,9 +67,9 @@ export default function Q4({ path, active, navigate, onSolved }) {
       path={path}
       active={active}
       navigate={navigate}
-      renderStep={(step, { screenActive, goQuestion, goSuccess, goMenu }) => {
+      renderStep={(step, { screenActive, goQuestion, goSuccess, goMenu, goEnding }) => {
         if (step === 'question') return <Quiz onBack={goMenu} onDone={goSuccess} />
-        if (step === 'success') return <Success active={screenActive} onSolved={onSolved} onBack={goMenu} />
+        if (step === 'success') return <Success active={screenActive} onSolved={onSolved} onBack={goMenu} onEnding={goEnding} />
         return <Intro active={screenActive} onNext={goQuestion} />
       }}
     />
@@ -200,7 +201,7 @@ function Quiz({ onBack, onDone }) {
 }
 
 /* ============ 懸念通關頁 ============ */
-function Success({ active, onSolved, onBack }) {
+function Success({ active, onSolved, onBack, onEnding }) {
   // 進入通關頁就記錄「第四關已答對」，並解鎖亞美
   useEffect(() => {
     if (active) onSolved()
@@ -230,14 +231,14 @@ function Success({ active, onSolved, onBack }) {
         </p>
       </article>
 
-      <button
-        type="button"
-        className={`${styles.homeButton} ${quiz.glowButton} ${quiz.rise}`}
+      {/* 按鈕文字跟著破關進度改變；四關全破時直接去結局頁領獎 */}
+      <ProgressButton
+        current="Q4"
+        className={`${styles.homeButton} ${quiz.rise}`}
         style={{ '--delay': '0.85s' }}
-        onClick={onBack}
-      >
-        回到尋寶地圖
-      </button>
+        onMenu={onBack}
+        onEnding={onEnding}
+      />
     </div>
   )
 }

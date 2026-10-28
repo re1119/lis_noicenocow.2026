@@ -100,6 +100,8 @@ export default function App() {
         navigate('/ending')
         return
       }
+      // 從通關頁的「領取專屬獎勵」按鈕直接進結局，也算看過了
+      if (to === '/ending') markEndingSeen()
       navigate(to, options)
     },
     [navigate],
